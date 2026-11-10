@@ -1,16 +1,19 @@
-// js/ui.js - utilidades de UI: modales, notificaciones, helpers de formulario
+// js/ui.js - utilidades de UI: modales, notificaciones, tablas, formato
 // Script clásico - variables globales
 
 function toast(message, type, duration) {
   type = type || 'info';
-  duration = duration || 3000;
+  duration = duration || 3200;
   const container = document.getElementById('toast-container') || createToastContainer();
   const el = document.createElement('div');
   const colors = { info: 'bg-blue-600', success: 'bg-green-600', error: 'bg-red-600', warning: 'bg-yellow-600' };
-  el.className = 'px-4 py-2 rounded-lg shadow-lg text-white ' + (colors[type] || colors.info);
+  el.className = 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-semibold ' + (colors[type] || colors.info);
   el.textContent = message;
   container.appendChild(el);
-  setTimeout(function() { el.classList.add('opacity-0', 'transition-opacity', 'duration-300'); setTimeout(function() { el.remove(); }, 300); }, duration);
+  setTimeout(function() {
+    el.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+    setTimeout(function() { el.remove(); }, 320);
+  }, duration);
 }
 
 function createToastContainer() {
@@ -23,16 +26,40 @@ function createToastContainer() {
 
 function openModal(id) {
   const modal = document.getElementById(id);
-  if (modal) { modal.classList.remove('hidden'); modal.classList.add('flex'); document.body.style.overflow = 'hidden'; }
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeModal(id) {
   const modal = document.getElementById(id);
-  if (modal) { modal.classList.add('hidden'); modal.classList.remove('flex'); document.body.style.overflow = ''; }
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = '';
 }
 
+// Cerrar modales al hacer clic en el overlay o con Escape
+document.addEventListener('click', function(e) {
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+    e.target.classList.add('hidden');
+    e.target.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(function(m) {
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    });
+    document.body.style.overflow = '';
+  }
+});
+
 function confirmAction(message, onConfirm) {
-  if (confirm(message)) onConfirm();
+  if (window.confirm(message)) onConfirm();
 }
 
 function formToObject(form) {
@@ -45,40 +72,56 @@ function formToObject(form) {
 function populateForm(form, data) {
   Object.keys(data || {}).forEach(function(key) {
     const input = form.querySelector('[name="' + key + '"]');
-    if (input) {
-      if (input.type === 'checkbox') input.checked = data[key] === 'on' || data[key] === true;
-      else input.value = data[key];
-    }
+    if (!input) return;
+    if (input.type === 'checkbox') input.checked = data[key] === 'on' || data[key] === true;
+    else input.value = data[key];
   });
 }
 
 function clearForm(form) {
-  form.reset();
+  if (form) form.reset();
 }
 
 function renderTable(rows, columns, actions) {
   actions = actions || [];
   const rowsArr = rows || [];
-  const thead = '<thead><tr>' + columns.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') + (actions.length ? '<th style="text-align:right">Acciones</th>' : '') + '</tr></thead>';
+  if (!rowsArr.length) {
+    return '<div class="empty-state"><i class="fa-solid fa-inbox"></i>No hay registros cargados todavía.</div>';
+  }
+  const thead = '<thead><tr>' + columns.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') +
+    (actions.length ? '<th style="text-align:right">Acciones</th>' : '') + '</tr></thead>';
   const tbody = '<tbody>' + rowsArr.map(function(row) {
     return '<tr>' + columns.map(function(c) {
-      const val = c.render ? c.render(row) : (row[c.key] || '');
+      const val = c.render ? c.render(row) : escapeHtml(String(row[c.key] !== undefined && row[c.key] !== null ? row[c.key] : ''));
       return '<td>' + val + '</td>';
     }).join('') + (actions.length
-      ? '<td style="text-align:right">' + actions.map(function(a) {
-          return '<button class="' + a.class + '" data-action="' + a.label + '" data-id="' + row.id + '">' + a.label + '</button>';
+      ? '<td style="text-align:right; white-space:nowrap">' + actions.map(function(a) {
+          return '<button type="button" class="action-btn' + (a.tone ? ' ' + a.tone : '') + '" data-action="' + a.label + '" data-id="' + row.id + '" title="' + a.label + '">' +
+            (a.icon ? '<i class="fa-solid ' + a.icon + '"></i>' : '') + '<span>' + a.label + '</span></button>';
         }).join(' ') + '</td>'
       : '') + '</tr>';
   }).join('') + '</tbody>';
-  return '<table>' + thead + tbody + '</table>';
+  return '<table class="data-table">' + thead + tbody + '</table>';
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function(ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
 }
 
 function formatCurrency(amount) {
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(amount || 0);
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(amount) || 0);
 }
 
 function formatDate(dateStr) {
   if (!dateStr) return '';
-  const d = new Date(dateStr + 'T00:00:00');
-  return isNaN(d.getTime()) ? dateStr : d.toLocaleDateString('es-AR');
+  const d = String(dateStr).length > 10 ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+  return isNaN(d.getTime()) ? String(dateStr) : d.toLocaleDateString('es-AR');
+}
+
+function todayISO() {
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 }

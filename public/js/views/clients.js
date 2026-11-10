@@ -1,20 +1,34 @@
 // js/views/clients.js - vista CRUD Clientes
+// Los listeners se adjuntan una sola vez por consulta (reset con init guard)
+
+var clientsSearchQuery = '';
+var clientsStore = null;
+var clientsInitialized = false;
 
 function initClientsView(store) {
-  // Botón nuevo cliente
+  if (clientsInitialized) return;
+  clientsInitialized = true;
+  clientsStore = store;
+
+  var modal = document.getElementById('modal-client');
+  var formClient = document.getElementById('form-client');
+  var searchInput = document.getElementById('clients-search');
+
   document.getElementById('btn-new-client').addEventListener('click', function() {
-    clearForm(document.getElementById('form-client'));
+    clearForm(formClient);
     document.getElementById('client-id').value = '';
     document.getElementById('modal-client-title').textContent = 'Nuevo Cliente';
     openModal('modal-client');
   });
 
-  // Guardar cliente
-  document.getElementById('form-client').addEventListener('submit', function(e) {
+  formClient.addEventListener('submit', function(e) {
     e.preventDefault();
-    const form = e.target;
-    const data = formToObject(form);
-    const id = document.getElementById('client-id').value;
+    var data = formToObject(formClient);
+    var id = document.getElementById('client-id').value;
+    if (!data.name || !data.name.trim()) {
+      toast('El nombre del cliente es obligatorio', 'error');
+      return;
+    }
     if (id) {
       store.updateClient(Object.assign({}, data, { id: id }));
       toast('Cliente actualizado', 'success');
@@ -25,17 +39,23 @@ function initClientsView(store) {
     closeModal('modal-client');
   });
 
-  // Tabla: Editar / Eliminar
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      clientsSearchQuery = searchInput.value.trim().toLowerCase();
+      renderClientsTable();
+    });
+  }
+
   document.getElementById('clients-table-container').addEventListener('click', function(e) {
-    const btn = e.target.closest('button[data-action]');
+    var btn = e.target.closest('button[data-action]');
     if (!btn) return;
-    const id = btn.dataset.id;
-    const action = btn.dataset.action;
+    var id = btn.dataset.id;
+    var action = btn.dataset.action;
 
     if (action === 'Editar') {
-      const client = store.getData().clients.find(function(c) { return c.id === id; });
+      var client = store.getData().clients.find(function(c) { return c.id === id; });
       if (client) {
-        populateForm(document.getElementById('form-client'), client);
+        populateForm(formClient, client);
         document.getElementById('client-id').value = id;
         document.getElementById('modal-client-title').textContent = 'Editar Cliente';
         openModal('modal-client');
@@ -48,19 +68,35 @@ function initClientsView(store) {
     }
   });
 
-  store.subscribe(function(data) {
-    const clients = data.clients || [];
-    const columns = [
-      { key: 'name', label: 'Razón Social / Nombre' },
-      { key: 'cuit', label: 'CUIT / Teléfono' },
-      { key: 'city', label: 'Localidad' },
-      { key: 'contact', label: 'Contacto' },
-      { key: 'createdAt', label: 'Creado', render: function(r) { return formatDate(r.createdAt); } }
-    ];
-    const actions = [
-      { label: 'Editar', class: 'btn-secondary' },
-      { label: 'Eliminar', class: 'btn-danger' }
-    ];
-    document.getElementById('clients-table-container').innerHTML = renderTable(clients, columns, actions);
-  });
+  store.subscribe(renderClientsTable);
+}
+
+function renderClientsTable(data) {
+  var clients = [];
+  try {
+    clients = (data || clientsStore.getData()).clients || [];
+  } catch (e) {
+    clients = clientsStore ? clientsStore.getData().clients : [];
+  }
+
+  if (clientsSearchQuery) {
+    clients = clients.filter(function(c) {
+      var haystack = [c.name, c.cuit, c.phone, c.city, c.contact].join(' ').toLowerCase();
+      return haystack.indexOf(clientsSearchQuery) !== -1;
+    });
+  }
+
+  var columns = [
+    { key: 'name', label: 'Razón Social / Nombre' },
+    { key: 'cuit', label: 'CUIT' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'city', label: 'Localidad' },
+    { key: 'contact', label: 'Contacto' },
+    { key: 'createdAt', label: 'Creado', render: function(r) { return formatDate(r.createdAt); } }
+  ];
+  var actions = [
+    { label: 'Editar', icon: 'fa-pen', tone: '' },
+    { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }
+  ];
+  document.getElementById('clients-table-container').innerHTML = renderTable(clients, columns, actions);
 }

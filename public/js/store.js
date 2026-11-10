@@ -11,18 +11,22 @@ class Store {
     this._data.clients = this._parse('clients');
     this._data.jobs = this._parse('jobs');
     this._data.payments = this._parse('payments');
-    // Sembrar datos de ejemplo si no hay nada
+    // Sembrar datos de ejemplo si no hay nada cargado
     if (this._data.clients.length === 0) {
       this._data.clients = [
-        { id: '1', name: 'Agropecuaria El Porvenir S.A.', cuit: '20-12345678-9', phone: '351-1234567', city: 'Córdoba', contact: 'Juan Pérez', createdAt: new Date().toISOString() },
-        { id: '2', name: 'Campos del Sur', cuit: '20-98765432-1', phone: '354-9876543', city: 'Villa María', contact: 'María Gómez', createdAt: new Date().toISOString() }
+        { id: '1', name: 'Agropecuaria El Porvenir S.A.', cuit: '30-70987654-1', phone: '351-5551234', city: 'Córdoba', contact: 'Juan Pérez', createdAt: '2026-02-18T10:00:00.000Z' },
+        { id: '2', name: 'Campos del Sur', cuit: '27-30456789-4', phone: '3543-5559876', city: 'Villa María', contact: 'María Gómez', createdAt: '2026-02-25T10:00:00.000Z' },
+        { id: '3', name: 'Establecimiento La Fortuna', cuit: '20-31234567-8', phone: '3525-5554567', city: 'Bell Ville', contact: 'Carlos Pedreschi', createdAt: '2026-03-02T10:00:00.000Z' }
       ];
       this._data.jobs = [
-        { id: '101', clientId: '1', date: '2026-03-10', description: 'Aeroaplicación de herbicida - Lote Norte', amount: 45000, status: 'pendiente', createdAt: new Date().toISOString() },
-        { id: '102', clientId: '2', date: '2026-03-15', description: 'Fertilización foliar - Lote Centro', amount: 38000, status: 'pagado', createdAt: new Date().toISOString() }
+        { id: '101', clientId: '1', date: '2026-03-10', description: 'Aeroaplicación de herbicida - Lote Norte (240 ha)', amount: 45000, location: 'Ruta 9 km 672 - Lote Norte', mapLink: 'https://www.google.com/maps?q=-31.4201,-64.1888', status: 'pendiente', createdAt: '2026-03-10T13:00:00.000Z' },
+        { id: '102', clientId: '2', date: '2026-03-15', description: 'Fertilización foliar con dron - Lote Centro (180 ha)', amount: 38000, location: 'Zona Rural Villa María', mapLink: 'https://www.google.com/maps?q=-32.4072,-63.2400', status: 'pagado', createdAt: '2026-03-15T13:00:00.000Z' },
+        { id: '103', clientId: '1', date: '2026-04-02', description: 'Control de malezas - Lote La Loma (150 ha)', amount: 52000, location: 'Lote La Loma', mapLink: '', status: 'pendiente', createdAt: '2026-04-02T13:00:00.000Z' },
+        { id: '104', clientId: '3', date: '2026-04-20', description: 'Aplicación de fungicida preventivo - Lote El Ombú (300 ha)', amount: 78000, location: 'Camino a La Fortuna, Bell Ville', mapLink: 'https://www.google.com/maps?q=-32.6239,-62.6887', status: 'pendiente', createdAt: '2026-04-20T13:00:00.000Z' }
       ];
       this._data.payments = [
-        { id: '201', clientId: '2', jobId: '102', amount: 38000, date: '2026-03-20', createdAt: new Date().toISOString() }
+        { id: '201', clientId: '2', jobId: '102', amount: 38000, date: '2026-03-20', note: 'Transferencia bancaria - comprobante 0451', createdAt: '2026-03-20T13:00:00.000Z' },
+        { id: '202', clientId: '1', jobId: '101', amount: 20000, date: '2026-04-05', note: 'Seña en efectivo', createdAt: '2026-04-05T13:00:00.000Z' }
       ];
       this._save();
     }
