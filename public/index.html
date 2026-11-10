@@ -8,7 +8,190 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23123f63'/><path d='M25 55 L70 35 L45 65 L38 53 Z' fill='%2316a34a'/></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style.css">
+  <style>
+/* Aeroaplicaciones Pedreschi - Estilos */
+
+:root {
+  --blue-900: #0b2e4f;
+  --blue-800: #123f63;
+  --blue-700: #16548a;
+  --blue-600: #1c6bb0;
+  --blue-100: #e8f1f8;
+  --green-600: #16a34a;
+  --green-700: #15803d;
+  --green-100: #e9f9ee;
+  --green-800: #14532d;
+}
+
+body {
+  background: #f4f7fa;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: #334155;
+}
+
+/* Logo */
+.logo-badge {
+  background: linear-gradient(135deg, var(--blue-800) 0%, var(--blue-600) 100%);
+}
+.logo-badge span { color: #fff; }
+
+/* Navbar */
+.navbar { background: var(--blue-900); }
+.navbar-brand { color: #fff; }
+.navbar-brand .company { font-size: 1.15rem; font-weight: 700; letter-spacing: .35px; }
+.navbar-brand .slogan { font-size: .68rem; color: #a3c4dd; font-weight: 400; letter-spacing: .5px; }
+.nav-link {
+  color: #cfe3f1 !important;
+  transition: all .15s ease;
+  border-radius: .5rem;
+  text-decoration: none;
+}
+.nav-link:hover { background: rgba(255,255,255,.08); color: #fff !important; }
+.nav-link.active-nav {
+  background: var(--green-600) !important;
+  color: #fff !important;
+}
+
+/* Cards */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(15, 42, 67, .08);
+}
+.card-header { display:flex; align-items:center; gap:.65rem; margin-bottom:1.1rem; }
+.card-header .icon-wrap {
+  width: 2.4rem; height: 2.4rem; border-radius: .75rem;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--blue-100); color: var(--blue-700);
+}
+.card-title { font-size: 1.05rem; font-weight: 700; color: var(--blue-900); }
+
+/* Inputs */
+.form-input {
+  display:block;
+  width:100%;
+  border:1px solid #dbe3ec;
+  border-radius:.6rem;
+  padding:.6rem .75rem;
+  font-size:.9rem;
+  background:#fbfcfe;
+  transition: border-color .15s, box-shadow .15s;
+}
+.form-input:focus {
+  outline:none;
+  border-color: var(--blue-600);
+  box-shadow: 0 0 0 3px rgba(28,107,176,.18);
+  background:#fff;
+}
+.label {
+  display:block;
+  font-size:.72rem;
+  font-weight:600;
+  color:#475569;
+  margin-bottom:.28rem;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+}
+
+/* Botones */
+.btn-primary {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background: var(--blue-800);
+  color:#fff; border:none; border-radius:.6rem;
+  padding:.65rem 1.1rem; font-weight:600; font-size:.9rem;
+  cursor:pointer; transition: all .15s;
+}
+.btn-primary:hover { background: var(--blue-700); }
+.btn-primary:disabled { opacity:.55; cursor:not-allowed; }
+
+.btn-green {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background: var(--green-600);
+  color:#fff; border:none; border-radius:.6rem;
+  padding:.65rem 1.1rem; font-weight:600; font-size:.9rem;
+  cursor:pointer; transition:all .15s;
+}
+.btn-green:hover { background: var(--green-700); }
+.btn-green:disabled { opacity:.6; cursor:not-allowed; }
+
+.btn-outline {
+  display:inline-flex; align-items:center; gap:.4rem;
+  background: transparent; color: var(--blue-800);
+  border: 1px solid var(--blue-800); border-radius:.6rem;
+  padding:.6rem 1rem; font-weight:600; font-size:.85rem;
+  cursor:pointer; transition:all .15s;
+}
+.btn-outline:hover { background: var(--blue-800); color:#fff; }
+
+.btn-danger-soft {
+  display:inline-flex; align-items:center; gap:.3rem;
+  background:#fef2f2; color:#b91c1c; border:1px solid #fecaca;
+  border-radius:.5rem; padding:.35rem .6rem; font-size:.75rem; font-weight:600; cursor:pointer;
+}
+.btn-danger-soft:hover { background:#fee2e2; }
+
+.icon-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:2rem; height:2rem; border-radius:.5rem;
+  border:1px solid #e2e8f0; background:#fff; color:var(--blue-700);
+  cursor:pointer; transition:all .15s; font-size:.8rem;
+}
+.icon-btn:hover { background: var(--blue-100); border-color: var(--blue-600); }
+.icon-btn.danger { color:#b91c1c; border-color:#fecaca; }
+.icon-btn.danger:hover { background:#fef2f2; border-color:#f87171; }
+
+/* Badges */
+.badge { display:inline-flex; align-items:center; gap:.25rem; padding:.22rem .55rem; border-radius: 999px; font-size:.7rem; font-weight:700; letter-spacing:.02em; }
+.badge-pendiente { background:#fef3c7; color:#92400e; }
+.badge-pagado { background: var(--green-100); color: var(--green-700); }
+.badge-congelado { background:#f1f5f9; color:#334155; }
+
+/* Tables */
+.data-table { width:100%; border-collapse: collapse; }
+.data-table th {
+  text-align:left; font-size:.68rem; letter-spacing:.06em;
+  text-transform:uppercase; color:#64748b;
+  padding:.65rem .75rem; border-bottom:2px solid #e2e8f0;
+}
+.data-table td { padding:.7rem .75rem; font-size:.875rem; border-bottom:1px solid #eef2f7; color:#334155; }
+.data-table tbody tr:hover { background: var(--blue-100); }
+.empty-state { padding:2.5rem; text-align:center; color:#94a3b8; }
+.empty-state i { font-size:2rem; margin-bottom:.5rem; display:block; color:#cbd5e1; }
+
+/* Stat cards */
+.stat-card { display:flex; align-items:center; gap:1rem; padding:1.1rem 1.2rem; border-radius:14px; color:#fff; position:relative; overflow:hidden; }
+.stat-card .stat-label { font-size:.72rem; opacity:.85; text-transform:uppercase; letter-spacing:.05em; }
+.stat-card .stat-value { font-size:1.55rem; font-weight:800; line-height:1.15; }
+.stat-card .stat-icon { position:absolute; right:-.25rem; top:-.25rem; font-size:3.2rem; opacity:.22; }
+.stat-blue { background: linear-gradient(135deg, var(--blue-800), var(--blue-600)); }
+.stat-green { background: linear-gradient(135deg, var(--green-700), var(--green-600)); }
+.stat-dark { background: linear-gradient(135deg, #334155, #1e293b); }
+.stat-orange { background: linear-gradient(135deg, #c2410c, #ea580c); }
+
+.action-btn {
+  display:inline-flex; align-items:center; gap:.3rem;
+  font-size:.78rem; font-weight:600; padding:.38rem .72rem;
+  border:1px solid #dbe4ee; background:#fff; border-radius:.55rem;
+  color:var(--blue-800); cursor:pointer; transition:all .15s;
+}
+.action-btn i { font-size:.85rem; opacity:.92; }
+.action-btn:hover { background:var(--blue-100); border-color:var(--blue-600); color:var(--blue-700); }
+.action-btn.danger { color:#b91c1c; border-color:#fecaca; background:#fef2f2; }
+.action-btn.danger:hover { background:#fee2e2; border-color:#f87171; color:#991b1b; }
+
+/* Map frame */
+.map-frame { width:100%; aspect-ratio:16/10; border:1px solid #e2e8f0; border-radius:.75rem; background:repeating-linear-gradient(45deg,#f8fafc,#f8fafc 12px,#eef2f7 12px,#eef2f7 24px); }
+
+/* Modal */
+.modal-overlay { background: rgba(10,25,40,.55); backdrop-filter: blur(3px); }
+.modal-panel { background:#fff; border-radius:16px; max-width:34rem; width:100%; max-height:94vh; overflow-y:auto; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+
+/* Footer */
+.footer { background: var(--blue-900); color:#9dbfce; font-size:.75rem; }
+.footer a { color:#cfe3f1; }
+
+</style>
 </head>
 <body class="antialiased min-h-screen">
 
@@ -256,11 +439,789 @@
     </div>
   </div>
 
-  <script src="js/ui.js"></script>
-  <script src="js/store.js"></script>
-  <script src="js/views/clients.js"></script>
-  <script src="js/views/jobs.js"></script>
-  <script src="js/views/account.js"></script>
-  <script src="js/app.js"></script>
+  <script>
+// js/ui.js - utilidades de UI: modales, notificaciones, tablas, formato
+// Script clásico - variables globales
+
+function toast(message, type, duration) {
+  type = type || 'info';
+  duration = duration || 3200;
+  const container = document.getElementById('toast-container') || createToastContainer();
+  const el = document.createElement('div');
+  const colors = { info: 'bg-blue-600', success: 'bg-green-600', error: 'bg-red-600', warning: 'bg-yellow-600' };
+  el.className = 'px-4 py-2 rounded-lg shadow-lg text-white text-sm font-semibold ' + (colors[type] || colors.info);
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(function() {
+    el.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+    setTimeout(function() { el.remove(); }, 320);
+  }, duration);
+}
+
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toast-container';
+  container.className = 'fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none';
+  document.body.appendChild(container);
+  return container;
+}
+
+function openModal(id) {
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (!modal) return;
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+  document.body.style.overflow = '';
+}
+
+// Cerrar modales al hacer clic en el overlay o con Escape
+document.addEventListener('click', function(e) {
+  if (e.target.classList && e.target.classList.contains('modal-overlay')) {
+    e.target.classList.add('hidden');
+    e.target.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay').forEach(function(m) {
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    });
+    document.body.style.overflow = '';
+  }
+});
+
+function confirmAction(message, onConfirm) {
+  if (window.confirm(message)) onConfirm();
+}
+
+function formToObject(form) {
+  const data = {};
+  const fields = new FormData(form);
+  for (const pair of fields) { data[pair[0]] = pair[1]; }
+  return data;
+}
+
+function populateForm(form, data) {
+  Object.keys(data || {}).forEach(function(key) {
+    const input = form.querySelector('[name="' + key + '"]');
+    if (!input) return;
+    if (input.type === 'checkbox') input.checked = data[key] === 'on' || data[key] === true;
+    else input.value = data[key];
+  });
+}
+
+function clearForm(form) {
+  if (form) form.reset();
+}
+
+function renderTable(rows, columns, actions) {
+  actions = actions || [];
+  const rowsArr = rows || [];
+  if (!rowsArr.length) {
+    return '<div class="empty-state"><i class="fa-solid fa-inbox"></i>No hay registros cargados todavía.</div>';
+  }
+  const thead = '<thead><tr>' + columns.map(function(c) { return '<th>' + c.label + '</th>'; }).join('') +
+    (actions.length ? '<th style="text-align:right">Acciones</th>' : '') + '</tr></thead>';
+  const tbody = '<tbody>' + rowsArr.map(function(row) {
+    return '<tr>' + columns.map(function(c) {
+      const val = c.render ? c.render(row) : escapeHtml(String(row[c.key] !== undefined && row[c.key] !== null ? row[c.key] : ''));
+      return '<td>' + val + '</td>';
+    }).join('') + (actions.length
+      ? '<td style="text-align:right; white-space:nowrap">' + actions.map(function(a) {
+          return '<button type="button" class="action-btn' + (a.tone ? ' ' + a.tone : '') + '" data-action="' + a.label + '" data-id="' + row.id + '" title="' + a.label + '">' +
+            (a.icon ? '<i class="fa-solid ' + a.icon + '"></i>' : '') + '<span>' + a.label + '</span></button>';
+        }).join(' ') + '</td>'
+      : '') + '</tr>';
+  }).join('') + '</tbody>';
+  return '<table class="data-table">' + thead + tbody + '</table>';
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, function(ch) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+  });
+}
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(Number(amount) || 0);
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  const d = String(dateStr).length > 10 ? new Date(dateStr) : new Date(dateStr + 'T00:00:00');
+  return isNaN(d.getTime()) ? String(dateStr) : d.toLocaleDateString('es-AR');
+}
+
+function todayISO() {
+  const d = new Date();
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
+}
+
+// js/store.js - persistencia local usando localStorage
+
+class Store {
+  constructor() {
+    this._data = { clients: [], jobs: [], payments: [] };
+    this._listeners = [];
+    this._load();
+  }
+
+  _load() {
+    this._data.clients = this._parse('clients');
+    this._data.jobs = this._parse('jobs');
+    this._data.payments = this._parse('payments');
+    // Sembrar datos de ejemplo si no hay nada cargado
+    if (this._data.clients.length === 0) {
+      this._data.clients = [
+        { id: '1', name: 'Agropecuaria El Porvenir S.A.', cuit: '30-70987654-1', phone: '351-5551234', city: 'Córdoba', contact: 'Juan Pérez', createdAt: '2026-02-18T10:00:00.000Z' },
+        { id: '2', name: 'Campos del Sur', cuit: '27-30456789-4', phone: '3543-5559876', city: 'Villa María', contact: 'María Gómez', createdAt: '2026-02-25T10:00:00.000Z' },
+        { id: '3', name: 'Establecimiento La Fortuna', cuit: '20-31234567-8', phone: '3525-5554567', city: 'Bell Ville', contact: 'Carlos Pedreschi', createdAt: '2026-03-02T10:00:00.000Z' }
+      ];
+      this._data.jobs = [
+        { id: '101', clientId: '1', date: '2026-03-10', description: 'Aeroaplicación de herbicida - Lote Norte (240 ha)', amount: 45000, location: 'Ruta 9 km 672 - Lote Norte', mapLink: 'https://www.google.com/maps?q=-31.4201,-64.1888', status: 'pendiente', createdAt: '2026-03-10T13:00:00.000Z' },
+        { id: '102', clientId: '2', date: '2026-03-15', description: 'Fertilización foliar con dron - Lote Centro (180 ha)', amount: 38000, location: 'Zona Rural Villa María', mapLink: 'https://www.google.com/maps?q=-32.4072,-63.2400', status: 'pagado', createdAt: '2026-03-15T13:00:00.000Z' },
+        { id: '103', clientId: '1', date: '2026-04-02', description: 'Control de malezas - Lote La Loma (150 ha)', amount: 52000, location: 'Lote La Loma', mapLink: '', status: 'pendiente', createdAt: '2026-04-02T13:00:00.000Z' },
+        { id: '104', clientId: '3', date: '2026-04-20', description: 'Aplicación de fungicida preventivo - Lote El Ombú (300 ha)', amount: 78000, location: 'Camino a La Fortuna, Bell Ville', mapLink: 'https://www.google.com/maps?q=-32.6239,-62.6887', status: 'pendiente', createdAt: '2026-04-20T13:00:00.000Z' }
+      ];
+      this._data.payments = [
+        { id: '201', clientId: '2', jobId: '102', amount: 38000, date: '2026-03-20', note: 'Transferencia bancaria - comprobante 0451', createdAt: '2026-03-20T13:00:00.000Z' },
+        { id: '202', clientId: '1', jobId: '101', amount: 20000, date: '2026-04-05', note: 'Seña en efectivo', createdAt: '2026-04-05T13:00:00.000Z' }
+      ];
+      this._save();
+    }
+  }
+
+  _parse(key) {
+    try {
+      return JSON.parse(localStorage.getItem(key) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  _save() {
+    localStorage.setItem('clients', JSON.stringify(this._data.clients));
+    localStorage.setItem('jobs', JSON.stringify(this._data.jobs));
+    localStorage.setItem('payments', JSON.stringify(this._data.payments));
+  }
+
+  subscribe(cb) {
+    this._listeners.push(cb);
+    cb(this._data);
+  }
+
+  _notify() {
+    this._listeners.forEach(function(cb) { cb(this._data); });
+  }
+
+  getData() { return this._data; }
+  getClients() { return this._data.clients; }
+  getJobs() { return this._data.jobs; }
+  getPayments() { return this._data.payments; }
+
+  addClient(client) {
+    const newClient = Object.assign({}, client, { id: Date.now().toString(), createdAt: new Date().toISOString() });
+    this._data.clients.push(newClient);
+    this._save();
+    this._notify();
+    return newClient;
+  }
+
+  updateClient(client) {
+    this._data.clients = this._data.clients.map(function(c) { return c.id === client.id ? Object.assign({}, c, client) : c; });
+    this._save();
+    this._notify();
+  }
+
+  deleteClient(id) {
+    this._data.clients = this._data.clients.filter(function(c) { return c.id !== id; });
+    this._data.jobs = this._data.jobs.filter(function(j) { return j.clientId !== id; });
+    this._data.payments = this._data.payments.filter(function(p) { return p.clientId !== id; });
+    this._save();
+    this._notify();
+  }
+
+  addJob(job) {
+    const newJob = Object.assign({}, job, { id: Date.now().toString(), createdAt: new Date().toISOString(), status: 'pendiente' });
+    this._data.jobs.push(newJob);
+    this._save();
+    this._notify();
+    return newJob;
+  }
+
+  updateJob(job) {
+    this._data.jobs = this._data.jobs.map(function(j) { return j.id === job.id ? Object.assign({}, j, job) : j; });
+    this._save();
+    this._notify();
+  }
+
+  deleteJob(id) {
+    this._data.jobs = this._data.jobs.filter(function(j) { return j.id !== id; });
+    this._data.payments = this._data.payments.filter(function(p) { return p.jobId !== id; });
+    this._save();
+    this._notify();
+  }
+
+  addPayment(payment) {
+    const newPayment = Object.assign({}, payment, { id: Date.now().toString(), createdAt: new Date().toISOString() });
+    this._data.payments.push(newPayment);
+    this._save();
+    this._notify();
+    return newPayment;
+  }
+
+  deletePayment(id) {
+    this._data.payments = this._data.payments.filter(function(p) { return p.id !== id; });
+    this._save();
+    this._notify();
+  }
+
+  getAccount(clientId) {
+    const jobs = this._data.jobs.filter(function(j) { return j.clientId === clientId; });
+    const payments = this._data.payments.filter(function(p) { return p.clientId === clientId; });
+    const totalDebito = jobs.reduce(function(s, j) { return s + (parseFloat(j.amount) || 0); }, 0);
+    const totalCredito = payments.reduce(function(s, p) { return s + (parseFloat(p.amount) || 0); }, 0);
+    return { clientId: clientId, totalDebito: totalDebito, totalCredito: totalCredito, saldo: totalDebito - totalCredito, jobs: jobs, payments: payments };
+  }
+}
+
+window.Store = Store;
+
+// js/views/clients.js - vista CRUD Clientes
+// Los listeners se adjuntan una sola vez por consulta (reset con init guard)
+
+var clientsSearchQuery = '';
+var clientsStore = null;
+var clientsInitialized = false;
+
+function initClientsView(store) {
+  if (clientsInitialized) return;
+  clientsInitialized = true;
+  clientsStore = store;
+
+  var modal = document.getElementById('modal-client');
+  var formClient = document.getElementById('form-client');
+  var searchInput = document.getElementById('clients-search');
+
+  document.getElementById('btn-new-client').addEventListener('click', function() {
+    clearForm(formClient);
+    document.getElementById('client-id').value = '';
+    document.getElementById('modal-client-title').textContent = 'Nuevo Cliente';
+    openModal('modal-client');
+  });
+
+  formClient.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var data = formToObject(formClient);
+    var id = document.getElementById('client-id').value;
+    if (!data.name || !data.name.trim()) {
+      toast('El nombre del cliente es obligatorio', 'error');
+      return;
+    }
+    if (id) {
+      store.updateClient(Object.assign({}, data, { id: id }));
+      toast('Cliente actualizado', 'success');
+    } else {
+      store.addClient(data);
+      toast('Cliente creado', 'success');
+    }
+    closeModal('modal-client');
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      clientsSearchQuery = searchInput.value.trim().toLowerCase();
+      renderClientsTable();
+    });
+  }
+
+  document.getElementById('clients-table-container').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var id = btn.dataset.id;
+    var action = btn.dataset.action;
+
+    if (action === 'Editar') {
+      var client = store.getData().clients.find(function(c) { return c.id === id; });
+      if (client) {
+        populateForm(formClient, client);
+        document.getElementById('client-id').value = id;
+        document.getElementById('modal-client-title').textContent = 'Editar Cliente';
+        openModal('modal-client');
+      }
+    } else if (action === 'Eliminar') {
+      confirmAction('¿Eliminar este cliente y sus trabajos/pagos?', function() {
+        store.deleteClient(id);
+        toast('Cliente eliminado', 'success');
+      });
+    }
+  });
+
+  store.subscribe(renderClientsTable);
+}
+
+function renderClientsTable(data) {
+  var clients = [];
+  try {
+    clients = (data || clientsStore.getData()).clients || [];
+  } catch (e) {
+    clients = clientsStore ? clientsStore.getData().clients : [];
+  }
+
+  if (clientsSearchQuery) {
+    clients = clients.filter(function(c) {
+      var haystack = [c.name, c.cuit, c.phone, c.city, c.contact].join(' ').toLowerCase();
+      return haystack.indexOf(clientsSearchQuery) !== -1;
+    });
+  }
+
+  var columns = [
+    { key: 'name', label: 'Razón Social / Nombre' },
+    { key: 'cuit', label: 'CUIT' },
+    { key: 'phone', label: 'Teléfono' },
+    { key: 'city', label: 'Localidad' },
+    { key: 'contact', label: 'Contacto' },
+    { key: 'createdAt', label: 'Creado', render: function(r) { return formatDate(r.createdAt); } }
+  ];
+  var actions = [
+    { label: 'Editar', icon: 'fa-pen', tone: '' },
+    { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }
+  ];
+  document.getElementById('clients-table-container').innerHTML = renderTable(clients, columns, actions);
+}
+
+// js/views/jobs.js - vista de Carga de Trabajos
+
+var jobsInitialized = false;
+
+function initJobsView(store) {
+  if (jobsInitialized) return;
+  jobsInitialized = true;
+
+  var selectClient = document.getElementById('job-client');
+
+  document.getElementById('form-job').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var form = e.target;
+    var clientId = form.querySelector('[name="clientId"]').value;
+    var date = form.querySelector('[name="date"]').value;
+    var description = form.querySelector('[name="description"]').value;
+    var amount = form.querySelector('[name="amount"]').value;
+    var location = form.querySelector('[name="location"]').value;
+    var mapLink = (form.querySelector('[name="mapLink"]') || {}).value || '';
+
+    if (!clientId || !date || !description) {
+      toast('Completá los campos obligatorios', 'error');
+      return;
+    }
+
+    store.addJob({
+      clientId: clientId,
+      date: date,
+      description: description,
+      amount: parseFloat(amount) || 0,
+      location: location,
+      mapLink: mapLink
+    });
+    toast('Trabajo guardado correctamente', 'success');
+    clearForm(form);
+    renderMapPreview();
+  });
+
+  var mapLink = document.getElementById('job-map-link');
+  if (mapLink) {
+    mapLink.addEventListener('input', function() { renderMapPreview(); });
+  }
+
+  document.getElementById('jobs-table-container').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    var action = btn.dataset.action;
+    var id = btn.dataset.id;
+
+    if (action === 'Ver detalle') {
+      openJobDetail(store, id);
+    } else if (action === 'Eliminar') {
+      confirmAction('¿Eliminar este trabajo y sus pagos?', function() {
+        store.deleteJob(id);
+        toast('Trabajo eliminado', 'success');
+      });
+    }
+  });
+
+  store.subscribe(function(data) {
+    var clients = data.clients || [];
+    var jobs = data.jobs || [];
+
+    if (selectClient) {
+      var prev = selectClient.value;
+      selectClient.innerHTML = '<option value="">Seleccione cliente</option>' +
+        clients.map(function(c) { return '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>'; }).join('');
+      selectClient.value = prev;
+    }
+
+    function clientName(id) {
+      return (clients.find(function(c) { return c.id === id; }) || {}).name || '';
+    }
+
+    var columns = [
+      { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
+      { key: 'description', label: 'Descripción' },
+      { key: 'clientId', label: 'Cliente', render: function(r) { return escapeHtml(clientName(r.clientId)); } },
+      { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
+      { key: 'status', label: 'Estado', render: function(r) {
+          return '<span class="badge ' + (r.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente') + '">' +
+            (r.status === 'pagado' ? 'Pagado' : 'Pendiente') + '</span>';
+        } }
+    ];
+    var actions = [
+      { label: 'Ver detalle', icon: 'fa-eye', tone: '' },
+      { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }
+    ];
+    document.getElementById('jobs-table-container').innerHTML = renderTable(jobs, columns, actions);
+  });
+
+  renderMapPreview();
+}
+
+function renderMapPreview() {
+  var iframe = document.getElementById('job-map-preview');
+  if (!iframe) return;
+  var mapLink = document.getElementById('job-map-link');
+  var link = mapLink ? mapLink.value : '';
+  if (link) {
+    iframe.src = link.indexOf('google.com/maps/embed') !== -1 ? link : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(link);
+    iframe.classList.remove('hidden');
+  } else {
+    iframe.src = '';
+    iframe.classList.add('hidden');
+  }
+}
+
+// js/views/account.js - vista Cuenta Corriente
+// Adjuntamos listeners UNA sola vez
+
+var accountInitialized = false;
+var accountStore = null;
+var selectedClientId = '';
+
+function initAccountView(store) {
+  if (accountInitialized) return;
+  accountInitialized = true;
+  accountStore = store;
+
+  var formPayment = document.getElementById('form-payment');
+  var selectAccount = document.getElementById('account-client');
+  var paymentDate = document.getElementById('payment-date');
+  if (paymentDate) paymentDate.value = todayISO();
+
+  //(Cambio de cliente en el panel principal)
+  selectAccount.addEventListener('change', function() {
+    selectedClientId = this.value;
+    renderAccount(selectedClientId);
+  });
+
+  // Registrar pago
+  formPayment.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var amountEl = document.getElementById('payment-amount');
+    var dateEl = document.getElementById('payment-date');
+    var clientEl = document.getElementById('payment-client');
+
+    var clientId = clientEl.value;
+    var amount = parseFloat(amountEl.value) || 0;
+    if (!clientId || amount <= 0) {
+      toast('Seleccioná un cliente e importe válido', 'error');
+      return;
+    }
+    store.addPayment({
+      clientId: clientId,
+      amount: amount,
+      date: dateEl.value || todayISO(),
+      note: document.getElementById('payment-note').value
+    });
+    toast('Pago registrado', 'success');
+
+    clearForm(formPayment);
+    if (paymentDate) paymentDate.value = todayISO();
+    // El store notifica a los subscribers -> onDataChanged re-renderiza
+  });
+
+  // Delegación para clicks en las tablas de cuenta
+  document.getElementById('account-jobs-table').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action="Ver detalle"]');
+    if (!btn) return;
+    openJobDetail(store, btn.dataset.id);
+  });
+  document.getElementById('account-payments-table').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action="Eliminar"]');
+    if (!btn) return;
+    confirmAction('¿Eliminar este pago?', function() {
+      store.deletePayment(btn.dataset.id);
+      toast('Pago eliminado', 'success');
+    });
+  });
+
+  // Tabla de todas las cuentas: click en "Ver" -> cambia de cliente
+  document.getElementById('accounts-table-container').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action="Abrir"]');
+    if (!btn) return;
+    var id = btn.dataset.id;
+    selectedClientId = id;
+    document.getElementById('account-client').value = id;
+    renderAccount(id);
+  });
+
+  store.subscribe(onDataChanged);
+}
+
+function onDataChanged(data) {
+  var clients = data.clients || [];
+  fillClientSelect(document.getElementById('account-client'), clients, true);
+  fillClientSelect(document.getElementById('payment-client'), clients, true);
+  if (selectedClientId) renderAccount(selectedClientId);
+  renderAllAccountsTable();
+}
+
+function fillClientSelect(sel, clients, keepPrev) {
+  if (!sel) return;
+  var prev = sel.value;
+  sel.innerHTML = '<option value="">Seleccionar cliente</option>' +
+    clients.map(function(c) { return '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>'; }).join('');
+  if (keepPrev && prev) sel.value = prev;
+}
+
+function renderAccount(clientId) {
+  var acc = accountStore.getAccount(clientId);
+  var client = accountStore.getClients().find(function(c) { return c.id === clientId; });
+
+  setText('account-client-name', client ? client.name : '—');
+  setText('account-debito', formatCurrency(acc.totalDebito));
+  setText('account-credito', formatCurrency(acc.totalCredito));
+  setText('account-saldo', formatCurrency(acc.saldo));
+
+  var jobCols = [
+    { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
+    { key: 'description', label: 'Descripción' },
+    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
+    { key: 'status', label: 'Estado', render: function(r) {
+        return '<span class="badge ' + (r.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente') + '">' +
+          (r.status === 'pagado' ? 'Pagado' : 'Pendiente') + '</span>';
+      } }
+  ];
+  document.getElementById('account-jobs-table').innerHTML =
+    renderTable(acc.jobs, jobCols, [{ label: 'Ver detalle', icon: 'fa-eye', tone: '' }]);
+
+  var payCols = [
+    { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
+    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
+    { key: 'note', label: 'Nota' }
+  ];
+  document.getElementById('account-payments-table').innerHTML =
+    renderTable(acc.payments, payCols, [{ label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }]);
+}
+
+function renderAllAccountsTable() {
+  var wrap = document.getElementById('accounts-table-container');
+  if (!wrap) return;
+  var clients = accountStore.getClients();
+  var rows = clients.map(function(c) {
+    var acc = accountStore.getAccount(c.id);
+    return { id: c.id, name: c.name, debito: acc.totalDebito, credito: acc.totalCredito, saldo: acc.saldo };
+  });
+  var columns = [
+    { key: 'name', label: 'Cliente' },
+    { key: 'debito', label: 'Total Debito', render: function(r) { return formatCurrency(r.debito); } },
+    { key: 'credito', label: 'Total Crédito', render: function(r) { return formatCurrency(r.credito); } },
+    { key: 'saldo', label: 'Saldo', render: function(r) { return '<strong>' + formatCurrency(r.saldo) + '</strong>'; } }
+  ];
+  wrap.innerHTML = renderTable(rows, columns, [{ label: 'Abrir', icon: 'fa-arrow-up-right-from-square', tone: '' }]);
+}
+
+function setText(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+// js/app.js - inicialización y navegación entre vistas
+// Listeners: se adjuntan una sola vez al DOMContentLoaded
+
+var store = new Store();
+var currentView = 'dashboard';
+
+function showView(viewName) {
+  document.querySelectorAll('.view-section').forEach(function(s) { s.classList.add('hidden'); });
+  var view = document.getElementById('view-' + viewName);
+  if (view) view.classList.remove('hidden');
+
+  document.querySelectorAll('.nav-link').forEach(function(l) { l.classList.remove('active-nav'); });
+  var activeLink = document.querySelector('.nav-link[data-view="' + viewName + '"]');
+  if (activeLink) activeLink.classList.add('active-nav');
+
+  currentView = viewName;
+  if (viewName === 'clients') initClientsView(store);
+  else if (viewName === 'jobs') initJobsView(store);
+  else if (viewName === 'account') initAccountView(store);
+  else renderDashboard();
+}
+
+function renderDashboard() {
+  var data = store.getData();
+  var jobs = data.jobs || [];
+  var payments = data.payments || [];
+  var clients = data.clients || [];
+  var totalDebito = sumJobs(jobs);
+  var totalCredito = sumPayments(payments);
+
+  setText('stat-clients', clients.length);
+  setText('stat-jobs', jobs.length);
+  setText('stat-billed', formatCurrency(totalDebito));
+  setText('stat-saldo', formatCurrency(totalDebito - totalCredito));
+
+  renderDashboardRecentJobs(jobs);
+}
+
+function renderDashboardRecentJobs(jobs) {
+  var wrap = document.getElementById('dashboard-recent-jobs');
+  if (!wrap) return;
+  var sorted = jobs.slice().sort(function(a, b) { return String(b.createdAt).localeCompare(String(a.createdAt)); }).slice(0, 5);
+  var columns = [
+    { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
+    { key: 'description', label: 'Descripción' },
+    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } }
+  ];
+  var actions = [{ label: 'Ver', icon: 'fa-eye', tone: '' }];
+  wrap.innerHTML = renderTable(sorted, columns, actions);
+}
+
+function sumJobs(jobs) {
+  return jobs.reduce(function(s, j) { return s + (parseFloat(j.amount) || 0); }, 0);
+}
+
+function sumPayments(payments) {
+  return payments.reduce(function(s, p) { return s + (parseFloat(p.amount) || 0); }, 0);
+}
+
+function clientName(store, clientId) {
+  var c = store.getClients().find(function(cl) { return String(cl.id) === String(clientId); });
+  return c ? c.name : 'Cliente eliminado';
+}
+
+function openJobDetail(store, jobId) {
+  var job = store.getJobs().find(function(j) { return String(j.id) === String(jobId); });
+  if (!job) return;
+  setText('job-detail-id', String(job.id));
+  setText('job-detail-client', clientName(store, job.clientId));
+  setText('job-detail-date', formatDate(job.date));
+  setText('job-detail-desc', job.description || '—');
+  setText('job-detail-amount', formatCurrency(job.amount));
+  setText('job-detail-location', job.location || '—');
+
+  var statusEl = document.getElementById('job-detail-status');
+  statusEl.className = 'badge ' + (job.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente');
+  statusEl.textContent = job.status === 'pagado' ? 'Pagado' : 'Pendiente';
+
+  renderJobDetailMap(job.mapLink);
+
+  var markBtn = document.getElementById('job-detail-mark-paid');
+  markBtn.dataset.id = job.id;
+  markBtn.disabled = job.status === 'pagado';
+  if (job.status === 'pagado') {
+    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Ya Pagado';
+  } else {
+    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Marcar como Pagado';
+  }
+  openModal('modal-job');
+}
+
+function renderJobDetailMap(mapLink) {
+  var wrap = document.getElementById('job-detail-map-wrap');
+  var iframe = document.getElementById('job-detail-map');
+  var link = document.getElementById('job-detail-map-link');
+  if (mapLink) {
+    iframe.src = mapLink.indexOf('google.com/maps/embed') !== -1
+      ? mapLink
+      : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(mapLink);
+    link.href = mapLink;
+    link.classList.remove('hidden');
+    wrap.classList.remove('hidden');
+  } else {
+    iframe.src = '';
+    link.classList.add('hidden');
+    wrap.classList.add('hidden');
+  }
+}
+
+function handleRoute() {
+  var hash = window.location.hash.slice(2) || 'dashboard';
+  showView(hash);
+}
+
+function setText(id, value) {
+  var el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+window.addEventListener('hashchange', handleRoute);
+
+window.addEventListener('DOMContentLoaded', function() {
+  var yr = document.getElementById('footer-year');
+  if (yr) yr.textContent = new Date().getFullYear();
+
+  document.querySelectorAll('.nav-link').forEach(function(link) {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.location.hash = '/' + this.dataset.view;
+    });
+  });
+
+  document.querySelectorAll('[data-close-modal]').forEach(function(btn) {
+    btn.addEventListener('click', function() { closeModal(btn.dataset.closeModal); });
+  });
+
+  // Adjuntar listeners una sola vez — initJobsView, initClientsView, initAccountView
+  // usan guard interno para no duplicar.
+  initClientsView(store);
+  initJobsView(store);
+  initAccountView(store);
+
+  // Delegación para abrir detalle desde dashboard y tablas
+  document.addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-action="Ver"]');
+    if (!btn) return;
+    var rowId = btn.dataset.id;
+    if (!rowId) return;
+    openJobDetail(store, rowId);
+  });
+
+  const markPaid = document.getElementById('job-detail-mark-paid');
+  if (markPaid) {
+    markPaid.addEventListener('click', function() {
+      var id = this.dataset.id;
+      var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+      if (!job) return;
+      store.updateJob(Object.assign({}, job, { status: 'pagado' }));
+      toast('Trabajo marcado como pagado', 'success');
+      closeModal('modal-job');
+    });
+  }
+
+  handleRoute();
+  // Refrescar dashboard en vivo cuando cambian los datos
+  store.subscribe(function() { if (currentView === 'dashboard') renderDashboard(); });
+});
+
+</script>
 </body>
 </html>
