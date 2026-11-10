@@ -144,6 +144,9 @@ body {
 /* Badges */
 .badge { display:inline-flex; align-items:center; gap:.25rem; padding:.22rem .55rem; border-radius: 999px; font-size:.7rem; font-weight:700; letter-spacing:.02em; }
 .badge-pendiente { background:#fef3c7; color:#92400e; }
+.badge-encurso { background:#dbeafe; color:#1e40af; }
+.badge-completado { background:#e2e8f0; color:#334155; }
+.badge-listo { background:#ffedd5; color:#9a3412; }
 .badge-pagado { background: var(--green-100); color: var(--green-700); }
 .badge-congelado { background:#f1f5f9; color:#334155; }
 
@@ -191,6 +194,31 @@ body {
 .footer { background: var(--blue-900); color:#9dbfce; font-size:.75rem; }
 .footer a { color:#cfe3f1; }
 
+/* Kanban / Tablero Post-Trabajo */
+.kanban-board { display:grid; grid-template-columns: repeat(1, minmax(0,1fr)); gap:.75rem; }
+@media (min-width: 768px) { .kanban-board { grid-template-columns: repeat(5, minmax(0,1fr)); } }
+.kanban-col { background:#fff; border:1px solid #e2e8f0; border-radius:.8rem; min-height: 120px; }
+.kanban-col-header { display:flex; align-items:center; justify-content:space-between; padding:.6rem .7rem; border-bottom:1px solid #e2e8f0; font-size:.78rem; font-weight:700; letter-spacing:.03em; text-transform:uppercase; }
+.kanban-col-header .count { background:#e2e8f0; border-radius:999px; padding:.05rem .45rem; font-size:.72rem; color:#334155; }
+.kanban-head-pendiente { color:#92400e; }
+.kanban-head-en-curso { color:#1e40af; }
+.kanban-head-completado { color:#334155; }
+.kanban-head-listo-cobro { color:#9a3412; }
+.kanban-head-pagado { color: var(--green-700); }
+.kanban-body { display:flex; flex-direction:column; gap:.5rem; padding:.6rem; }
+.kanban-card { background:#fbfcfe; border:1px solid #e2e8f0; border-radius:.6rem; padding:.55rem .6rem; font-size:.8rem; box-shadow:0 1px 2px rgba(15,42,67,.06); transition: box-shadow .15s; }
+.kanban-card:hover { box-shadow:0 4px 12px rgba(15,42,67,.12); }
+.kanban-card-title { font-weight:700; color:var(--blue-900); font-size:.8rem; line-height:1.25; }
+.kanban-card-sub { font-size:.7rem; color:#64748b; }
+.kanban-card-amount { font-weight:800; color:var(--blue-800); }
+.kanban-card-foot { display:flex; align-items:center; justify-content:space-between; gap:.3rem; margin-top:.35rem; }
+.kanban-move { display:inline-flex; align-items:center; justify-content:center; width:1.7rem; height:1.7rem; border-radius:.45rem; border:1px solid #dbe4ee; background:#fff; color:var(--blue-800); cursor:pointer; }
+.kanban-move:hover { background: var(--blue-100); }
+.kanban-move:disabled { opacity:.3; cursor:not-allowed; }
+.check-row { display:flex; align-items:center; gap:.5rem; font-size:.85rem; color:#334155; padding:.35rem .4rem; border-radius:.45rem; }
+.check-row input { accent-color: var(--green-600); width:1.05rem; height:1.05rem; }
+.check-row:hover { background:#f8fafc; }
+
 </style>
 </head>
 <body class="antialiased min-h-screen">
@@ -212,14 +240,16 @@ body {
         <div class="hidden sm:flex items-center space-x-1">
           <a href="#/dashboard" class="nav-link text-sm px-3 py-2" data-view="dashboard"><i class="fa-solid fa-house mr-2"></i>Dashboard</a>
           <a href="#/jobs" class="nav-link text-sm px-3 py-2" data-view="jobs"><i class="fa-solid fa-plane mr-2"></i>Carga de Trabajos</a>
+          <a href="#/kanban" class="nav-link text-sm px-3 py-2" data-view="kanban"><i class="fa-solid fa-clipboard-check mr-2"></i>Post-Trabajo</a>
           <a href="#/clients" class="nav-link text-sm px-3 py-2" data-view="clients"><i class="fa-solid fa-users mr-2"></i>Clientes</a>
           <a href="#/account" class="nav-link text-sm px-3 py-2" data-view="account"><i class="fa-solid fa-wallet mr-2"></i>Cuenta Corriente</a>
         </div>
       </div>
       <!-- Nav móvil -->
       <div class="sm:hidden border-t border-white/10 py-2 flex flex-wrap gap-1">
-        <a href="#/dashboard" class="nav-link text-xs px-3 py-2" data-view="dashboard"><i class="fa-solid fa-house mr-1"></i>Dashboard</a>
+        <a href="#/dashboard" class="nav-link text-xs px-3 py-2" data-view="dashboard"><i class="fa-solid fa-house mr-1"></i>Dash</a>
         <a href="#/jobs" class="nav-link text-xs px-3 py-2" data-view="jobs"><i class="fa-solid fa-plane mr-1"></i>Trabajos</a>
+        <a href="#/kanban" class="nav-link text-xs px-3 py-2" data-view="kanban"><i class="fa-solid fa-clipboard-check mr-1"></i>Post-Trabajo</a>
         <a href="#/clients" class="nav-link text-xs px-3 py-2" data-view="clients"><i class="fa-solid fa-users mr-1"></i>Clientes</a>
         <a href="#/account" class="nav-link text-xs px-3 py-2" data-view="account"><i class="fa-solid fa-wallet mr-1"></i>Cuenta</a>
       </div>
@@ -236,11 +266,13 @@ body {
           <p class="text-sm text-slate-500">Resumen general de Aeroaplicaciones Pedreschi</p>
         </div>
       </div>
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
         <div class="stat-card stat-blue"><i class="fa-solid fa-location-dot stat-icon"></i><div><div class="stat-label">Trabajos</div><div class="stat-value" id="stat-jobs">0</div></div></div>
         <div class="stat-card stat-green"><i class="fa-solid fa-user-group stat-icon"></i><div><div class="stat-label">Clientes</div><div class="stat-value" id="stat-clients">0</div></div></div>
         <div class="stat-card stat-dark"><i class="fa-solid fa-coins stat-icon"></i><div><div class="stat-label">Total Facturado</div><div class="stat-value" id="stat-billed">$0</div></div></div>
         <div class="stat-card stat-orange"><i class="fa-solid fa-hourglass-half stat-icon"></i><div><div class="stat-label">Saldo Pendiente</div><div class="stat-value" id="stat-saldo">$0</div></div></div>
+        <div class="stat-card stat-green" style="background: linear-gradient(135deg, #15803d, #16a34a);"><i class="fa-solid fa-circle-check stat-icon"></i><div><div class="stat-label">Cobrados</div><div class="stat-value" id="stat-pagados">0</div></div></div>
+        <div class="stat-card stat-dark" style="background: linear-gradient(135deg, #c2410c, #f97316);"><i class="fa-solid fa-clock stat-icon"></i><div><div class="stat-label">Por Cobrar</div><div class="stat-value" id="stat-pendientes">0</div></div></div>
       </div>
       <div class="card p-6">
         <div class="card-header">
@@ -262,17 +294,24 @@ body {
       <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div class="lg:col-span-2">
           <div class="card p-6 h-full">
-            <div class="card-header"><div class="icon-wrap"><i class="fa-solid fa-plane-up"></i></div><h2 class="card-title">Nuevo Trabajo</h2></div>
+            <div class="card-header"><div class="icon-wrap"><i class="fa-solid fa-plane-up"></i></div><h2 class="card-title" id="job-form-title">Nuevo Trabajo</h2></div>
             <form id="form-job" class="space-y-3">
+              <input type="hidden" id="job-id" name="jobId">
               <div><label class="label" for="job-client">Cliente *</label><select id="job-client" name="clientId" required class="form-input"></select></div>
               <div class="flex gap-3">
                 <div class="flex-1"><label class="label" for="job-date">Fecha *</label><input type="date" id="job-date" name="date" required class="form-input"></div>
                 <div class="flex-1"><label class="label" for="job-amount">Monto ($) *</label><input type="number" id="job-amount" name="amount" min="0" step="0.01" required class="form-input" placeholder="0"></div>
               </div>
+              <div class="flex gap-3">
+                <div class="flex-1"><label class="label" for="job-status">Estado</label><select id="job-status" name="status" class="form-input"><option value="pendiente">Tomado</option><option value="en-curso">En Ejecución</option><option value="completado">Completado</option><option value="listo-cobro">Listo para Cobrar</option><option value="pagado">Cobrado</option></select></div>
+              </div>
               <div><label class="label" for="job-description">Descripción / Observaciones *</label><textarea id="job-description" name="description" required rows="2" class="form-input" placeholder="Ej: Aeroaplicación de herbicida"></textarea></div>
               <div><label class="label" for="job-location">Zona / Coordenadas</label><input id="job-location" name="location" class="form-input" placeholder="-31.42, -64.18 o nombre de la zona"></div>
               <div><label class="label" for="job-map-link">Enlace de Ubicación (Google My Maps / Maps)</label><input id="job-map-link" name="mapLink" class="form-input" placeholder="https://www.google.com/maps/..."></div>
-              <button type="submit" id="btn-save-job" class="btn-green w-full justify-center py-2.5"><i class="fa-solid fa-check-circle"></i> Guardar Trabajo</button>
+              <div class="flex gap-2">
+                <button type="submit" id="btn-save-job" class="btn-green flex-1 justify-center py-2.5"><i class="fa-solid fa-check-circle"></i> <span>Guardar Trabajo</span></button>
+                <button type="button" id="btn-cancel-job-edit" class="btn-outline hidden"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+              </div>
             </form>
             <div class="mt-3 text-xs text-blue-800 bg-blue-100 border border-blue-200 rounded-lg px-3 py-2"><i class="fa-solid fa-circle-info mr-1"></i> El enlace se muestra en la vista previa.</div>
           </div>
@@ -290,6 +329,18 @@ body {
           </div>
         </div>
       </div>
+    </section>
+
+    <!-- VISTA: Tablero Post-Trabajo (kanban por estado) -->
+    <section id="view-kanban" class="view-section hidden">
+      <div class="flex items-center justify-between mb-5 gap-3 flex-wrap">
+        <div>
+          <h1 class="text-2xl font-extrabold text-blue-900">Tablero Post-Trabajo</h1>
+          <p class="text-sm text-slate-500">Tomado → En Ejecución → Completado → Listo para Cobrar → Cobrado</p>
+        </div>
+        <div class="text-xs text-slate-500 bg-white border border-blue-100 rounded-lg px-3 py-2"><i class="fa-solid fa-arrows-left-right-to-line mr-1"></i>Las flechas mueven el trabajo entre etapas · <i class="fa-solid fa-eye mr-1"></i>para editar y tildar el checklist</div>
+      </div>
+      <div id="kanban-board" class="kanban-board"></div>
     </section>
 
     <!-- VISTA: Gestión de Clientes -->
@@ -333,6 +384,7 @@ body {
             <div class="card-header"><div class="icon-wrap"><i class="fa-solid fa-file-invoice-dollar"></i></div><h2 class="card-title">Registrar Pago</h2></div>
             <form id="form-payment" class="space-y-3">
               <div><label class="label" for="payment-client">Cliente *</label><select id="payment-client" class="form-input" name="clientId"></select></div>
+              <div><label class="label" for="payment-job">Vincular a trabajo (opcional)</label><select id="payment-job" class="form-input" name="jobId"></select></div>
               <div class="flex gap-3">
                 <div class="flex-1"><label class="label" for="payment-amount">Importe ($) *</label><input id="payment-amount" name="amount" type="number" min="0" step="0.01" required class="form-input" placeholder="0"></div>
                 <div class="flex-1"><label class="label" for="payment-date">Fecha *</label><input id="payment-date" name="date" type="date" required class="form-input"></div>
@@ -431,11 +483,51 @@ body {
           <iframe id="job-detail-map" class="map-frame" title="Mapa del trabajo"></iframe>
           <a id="job-detail-map-link" href="#" target="_blank" rel="noopener" class="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-blue-700 hover:underline"><i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Google Maps</a>
         </div>
-        <div class="text-right"><button id="job-detail-mark-paid" type="button" class="btn-green"><i class="fa-solid fa-circle-check"></i> Marcar como Pagado</button></div>
+        <div class="border border-slate-100 rounded-xl p-3 bg-slate-50/60">
+          <div class="flex items-center gap-2 mb-2">
+            <i class="fa-solid fa-clipboard-check text-green-700"></i>
+            <span class="font-bold text-blue-900 text-sm">Post-Trabajo</span>
+          </div>
+          <label class="check-row"><input type="checkbox" id="pt-completado"> Trabajo completado en su totalidad</label>
+          <label class="check-row"><input type="checkbox" id="pt-conforme"> Cliente conforme con el resultado</label>
+          <div class="mt-2"><label class="label" for="pt-faltante">¿Faltó algo?</label><textarea id="pt-faltante" class="form-input" rows="1" placeholder="Ej: No se pudo pasar por el lote norte..."></textarea></div>
+          <div class="mt-2"><label class="label" for="pt-observaciones">Observaciones</label><textarea id="pt-observaciones" class="form-input" rows="2" placeholder="Notas para cobrar / facturar, clima, rendimiento, etc."></textarea></div>
+          <div class="text-right mt-2"><button id="job-detail-save-pt" type="button" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Post-Trabajo</button></div>
+        </div>
+        <div class="flex items-center justify-between gap-2">
+          <button id="job-detail-edit-btn" type="button" class="btn-outline"><i class="fa-solid fa-pen"></i> Editar Trabajo</button>
+          <button id="job-detail-mark-paid" type="button" class="btn-green"><i class="fa-solid fa-circle-check"></i> <span id="job-detail-mark-paid-text">Marcar como Cobrado</span></button>
+        </div>
       </div>
       <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-100">
         <button type="button" class="btn-outline" data-close-modal="modal-job">Cerrar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal: Editar Pago / Recibo -->
+  <div id="modal-payment" class="modal-overlay fixed inset-0 z-50 hidden items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div class="modal-panel">
+      <form id="form-payment-edit">
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-slate-100">
+          <h3 class="text-lg font-extrabold text-blue-900"><i class="fa-solid fa-receipt mr-2 text-green-600"></i>Editar Pago / Recibo</h3>
+          <button type="button" class="icon-btn" data-close-modal="modal-payment" aria-label="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-6 space-y-3">
+          <input type="hidden" id="payment-edit-id" name="id">
+          <div><label class="label" for="payment-edit-client">Cliente *</label><select id="payment-edit-client" name="clientId" class="form-input" required></select></div>
+          <div><label class="label" for="payment-edit-job">Trabajo vinculado (opcional)</label><select id="payment-edit-job" name="jobId" class="form-input"></select></div>
+          <div class="flex gap-3">
+            <div class="flex-1"><label class="label" for="payment-edit-amount">Importe ($) *</label><input id="payment-edit-amount" name="amount" type="number" min="0" step="0.01" required class="form-input"></div>
+            <div class="flex-1"><label class="label" for="payment-edit-date">Fecha *</label><input id="payment-edit-date" name="date" type="date" required class="form-input"></div>
+          </div>
+          <div><label class="label" for="payment-edit-note">Detalle / Referencia</label><input id="payment-edit-note" name="note" class="form-input"></div>
+        </div>
+        <div class="flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-100">
+          <button type="button" class="btn-outline" data-close-modal="modal-payment">Cancelar</button>
+          <button type="submit" class="btn-primary"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -607,6 +699,45 @@ function buildEmbedUrl(input) {
   return 'https://www.google.com/maps?q=' + encodeURIComponent(s) + '&output=embed';
 }
 
+// Etiquetas del flujo de trabajos
+var JOB_STATUS_LABELS = {
+  'pendiente': 'Tomado',
+  'en-curso': 'En Ejecución',
+  'completado': 'Completado',
+  'listo-cobro': 'Listo para Cobrar',
+  'pagado': 'Cobrado'
+};
+
+function jobStatusLabel(status) {
+  return JOB_STATUS_LABELS[status] || (status ? String(status) : 'Tomado');
+}
+
+function jobStatusBadgeClass(status) {
+  var map = {
+    'pendiente': 'badge-pendiente',
+    'en-curso': 'badge-encurso',
+    'completado': 'badge-completado',
+    'listo-cobro': 'badge-listo',
+    'pagado': 'badge-pagado'
+  };
+  return map[status] || 'badge-pendiente';
+}
+
+function jobStatusBadge(status) {
+  return '<span class="badge ' + jobStatusBadgeClass(status) + '">' + escapeHtml(jobStatusLabel(status)) + '</span>';
+}
+
+// Flujo de estados de los trabajos (pipeline hacia cobro):
+// pendiente -> en-curso -> completado -> listo-cobro -> pagado
+var JOB_FLOW = ['pendiente', 'en-curso', 'completado', 'listo-cobro', 'pagado'];
+
+function jobFlowIndex(status) {
+  for (var i = 0; i < JOB_FLOW.length; i++) {
+    if (JOB_FLOW[i] === status) return i;
+  }
+  return -1;
+}
+
 // js/store.js - persistencia local usando localStorage
 
 class Store {
@@ -620,6 +751,16 @@ class Store {
     this._data.clients = this._parse('clients');
     this._data.jobs = this._parse('jobs');
     this._data.payments = this._parse('payments');
+    // Migración suave: agregar campos nuevos sin romper datos existentes
+    this._data.jobs = this._data.jobs.map(function(j) {
+      return Object.assign({
+        status: 'pendiente',
+        completado: false,
+        conforme: false,
+        faltante: '',
+        observaciones: ''
+      }, j);
+    });
     // Sembrar datos de ejemplo si no hay nada cargado
     if (this._data.clients.length === 0) {
       this._data.clients = [
@@ -695,7 +836,10 @@ class Store {
   }
 
   addJob(job) {
-    const newJob = Object.assign({}, job, { id: Date.now().toString(), createdAt: new Date().toISOString(), status: 'pendiente' });
+    const newJob = Object.assign({
+      status: 'pendiente', completado: false, conforme: false,
+      faltante: '', observaciones: ''
+    }, job, { id: Date.now().toString(), createdAt: new Date().toISOString() });
     this._data.jobs.push(newJob);
     this._save();
     this._notify();
@@ -721,6 +865,12 @@ class Store {
     this._save();
     this._notify();
     return newPayment;
+  }
+
+  updatePayment(payment) {
+    this._data.payments = this._data.payments.map(function(p) { return p.id === payment.id ? Object.assign({}, p, payment) : p; });
+    this._save();
+    this._notify();
   }
 
   deletePayment(id) {
@@ -851,29 +1001,26 @@ function renderClientsTable(data) {
   document.getElementById('clients-table-container').innerHTML = renderTable(clients, columns, actions);
 }
 
-// js/views/jobs.js - vista de Carga de Trabajos
+// js/views/jobs.js - vista de Carga de Trabajos (alta y edición)
 
 var jobsInitialized = false;
+var jobsStoreRef = null;
 
 function initJobsView(store) {
   if (jobsInitialized) return;
   jobsInitialized = true;
+  jobsStoreRef = store;
 
   var selectClient = document.getElementById('job-client');
+  var form = document.getElementById('form-job');
 
-  document.getElementById('form-job').addEventListener('submit', function(e) {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
-    var form = e.target;
-    // Guard contra doble despacho (mensajes de confirmación/clics repetidos)
+    // Guard contra doble despacho
     if (form.dataset.submitting === '1') return;
-    var clientId = form.querySelector('[name="clientId"]').value;
-    var date = form.querySelector('[name="date"]').value;
-    var description = form.querySelector('[name="description"]').value;
-    var amount = form.querySelector('[name="amount"]').value;
-    var location = form.querySelector('[name="location"]').value;
-    var mapLink = (form.querySelector('[name="mapLink"]') || {}).value || '';
+    var data = collectJobForm(form);
 
-    if (!clientId || !date || !description) {
+    if (!data.clientId || !data.date || !data.description) {
       toast('Completá los campos obligatorios', 'error');
       return;
     }
@@ -881,18 +1028,16 @@ function initJobsView(store) {
     form.dataset.submitting = '1';
     var submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
-
     try {
-      store.addJob({
-        clientId: clientId,
-        date: date,
-        description: description,
-        amount: parseFloat(amount) || 0,
-        location: location,
-        mapLink: mapLink
-      });
-      toast('Trabajo guardado correctamente', 'success');
-      clearForm(form);
+      var editingId = form.querySelector('#job-id').value;
+      if (editingId) {
+        store.updateJob(Object.assign({}, data, { id: editingId }));
+        toast('Trabajo actualizado correctamente', 'success');
+      } else {
+        store.addJob(data);
+        toast('Trabajo guardado correctamente', 'success');
+      }
+      exitJobEditMode();
       renderMapPreview();
     } finally {
       form.dataset.submitting = '';
@@ -900,14 +1045,14 @@ function initJobsView(store) {
     }
   });
 
+  document.getElementById('btn-cancel-job-edit').addEventListener('click', function() {
+    exitJobEditMode();
+  });
+
   var mapLink = document.getElementById('job-map-link');
-  if (mapLink) {
-    mapLink.addEventListener('input', function() { renderMapPreview(); });
-  }
+  if (mapLink) mapLink.addEventListener('input', function() { renderMapPreview(); });
   var locationInput = document.getElementById('job-location');
-  if (locationInput) {
-    locationInput.addEventListener('input', function() { renderMapPreview(); });
-  }
+  if (locationInput) locationInput.addEventListener('input', function() { renderMapPreview(); });
 
   document.getElementById('jobs-table-container').addEventListener('click', function(e) {
     var btn = e.target.closest('button[data-action]');
@@ -917,6 +1062,8 @@ function initJobsView(store) {
 
     if (action === 'Ver detalle') {
       openJobDetail(store, id);
+    } else if (action === 'Editar') {
+      startEditJob(store, id);
     } else if (action === 'Eliminar') {
       confirmAction('¿Eliminar este trabajo y sus pagos?', function() {
         store.deleteJob(id);
@@ -945,18 +1092,60 @@ function initJobsView(store) {
       { key: 'description', label: 'Descripción' },
       { key: 'clientId', label: 'Cliente', render: function(r) { return escapeHtml(clientName(r.clientId)); } },
       { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
-      { key: 'status', label: 'Estado', render: function(r) {
-          return '<span class="badge ' + (r.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente') + '">' +
-            (r.status === 'pagado' ? 'Pagado' : 'Pendiente') + '</span>';
-        } }
+      { key: 'status', label: 'Estado', render: function(r) { return jobStatusBadge(r.status); } }
     ];
     var actions = [
       { label: 'Ver detalle', icon: 'fa-eye', tone: '' },
+      { label: 'Editar', icon: 'fa-pen', tone: '' },
       { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }
     ];
     document.getElementById('jobs-table-container').innerHTML = renderTable(jobs, columns, actions);
   });
 
+  renderMapPreview();
+}
+
+function collectJobForm(form) {
+  return {
+    clientId: (form.querySelector('[name="clientId"]') || {}).value || '',
+    date: (form.querySelector('[name="date"]') || {}).value || '',
+    amount: parseFloat((form.querySelector('[name="amount"]') || {}).value) || 0,
+    description: (form.querySelector('[name="description"]') || {}).value || '',
+    location: (form.querySelector('[name="location"]') || {}).value || '',
+    mapLink: (form.querySelector('[name="mapLink"]') || {}).value || '',
+    status: (form.querySelector('[name="status"]') || {}).value || 'pendiente'
+  };
+}
+
+function exitJobEditMode() {
+  var form = document.getElementById('form-job');
+  if (!form) return;
+  form.reset();
+  document.getElementById('job-id').value = '';
+  var title = document.getElementById('job-form-title');
+  if (title) title.textContent = 'Nuevo Trabajo';
+  var submitBtn = document.getElementById('btn-save-job');
+  if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> <span>Guardar Trabajo</span>';
+  var cancelBtn = document.getElementById('btn-cancel-job-edit');
+  if (cancelBtn) cancelBtn.classList.add('hidden');
+}
+
+// Carga el trabajo indicado en el formulario de Carga de Trabajos (modo edición).
+function startEditJob(store, id) {
+  if (!store) store = jobsStoreRef;
+  if (!store) return;
+  var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+  if (!job) return;
+  window.location.hash = '#/jobs';
+  var form = document.getElementById('form-job');
+  populateForm(form, job);
+  document.getElementById('job-id').value = job.id;
+  var title = document.getElementById('job-form-title');
+  if (title) title.textContent = 'Editar Trabajo';
+  var submitBtn = document.getElementById('btn-save-job');
+  if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> <span>Actualizar Trabajo</span>';
+  var cancelBtn = document.getElementById('btn-cancel-job-edit');
+  if (cancelBtn) cancelBtn.classList.remove('hidden');
   renderMapPreview();
 }
 
@@ -992,12 +1181,18 @@ function initAccountView(store) {
   var formPayment = document.getElementById('form-payment');
   var selectAccount = document.getElementById('account-client');
   var paymentDate = document.getElementById('payment-date');
+  var paymentJobSelect = document.getElementById('payment-job');
   if (paymentDate) paymentDate.value = todayISO();
 
-  //(Cambio de cliente en el panel principal)
+  // Cambio de cliente en el panel principal
   selectAccount.addEventListener('change', function() {
     selectedClientId = this.value;
+    fillJobSelect(paymentJobSelect, store, this.value);
     renderAccount(selectedClientId);
+  });
+  // Si cambia el cliente del formulario de pago, refrescar sus trabajos linkeables
+  document.getElementById('payment-client').addEventListener('change', function() {
+    fillJobSelect(paymentJobSelect, store, this.value);
   });
 
   // Registrar pago
@@ -1006,6 +1201,7 @@ function initAccountView(store) {
     var amountEl = document.getElementById('payment-amount');
     var dateEl = document.getElementById('payment-date');
     var clientEl = document.getElementById('payment-client');
+    var jobEl = paymentJobSelect;
 
     var clientId = clientEl.value;
     var amount = parseFloat(amountEl.value) || 0;
@@ -1018,8 +1214,10 @@ function initAccountView(store) {
     formPayment.dataset.submitting = '1';
 
     try {
+      var jobId = jobEl && jobEl.value ? jobEl.value : null;
       store.addPayment({
         clientId: clientId,
+        jobId: jobId,
         amount: amount,
         date: dateEl.value || todayISO(),
         note: document.getElementById('payment-note').value
@@ -1028,6 +1226,7 @@ function initAccountView(store) {
 
       clearForm(formPayment);
       if (paymentDate) paymentDate.value = todayISO();
+      if (jobEl) fillJobSelect(jobEl, accountStore, clientEl.value);
     } finally {
       formPayment.dataset.submitting = '';
     }
@@ -1035,20 +1234,55 @@ function initAccountView(store) {
 
   // Delegación para clicks en las tablas de cuenta
   document.getElementById('account-jobs-table').addEventListener('click', function(e) {
-    var btn = e.target.closest('button[data-action="Ver detalle"]');
+    var btn = e.target.closest('button[data-action]');
     if (!btn) return;
-    openJobDetail(store, btn.dataset.id);
+    if (btn.dataset.action === 'Ver detalle') {
+      openJobDetail(store, btn.dataset.id);
+    } else if (btn.dataset.action === 'Editar') {
+      startEditJob(store, btn.dataset.id);
+    }
   });
   document.getElementById('account-payments-table').addEventListener('click', function(e) {
-    var btn = e.target.closest('button[data-action="Eliminar"]');
+    var btn = e.target.closest('button[data-action]');
     if (!btn) return;
-    confirmAction('¿Eliminar este pago?', function() {
-      store.deletePayment(btn.dataset.id);
-      toast('Pago eliminado', 'success');
-    });
+    if (btn.dataset.action === 'Eliminar') {
+      confirmAction('¿Eliminar este pago?', function() {
+        store.deletePayment(btn.dataset.id);
+        toast('Pago eliminado', 'success');
+      });
+    } else if (btn.dataset.action === 'Editar') {
+      openPaymentEditModal(accountStore, btn.dataset.id);
+    }
   });
 
-  // Tabla de todas las cuentas: click en "Ver" -> cambia de cliente
+  // Guardar edición de pago (modal-payment)
+  var formEdit = document.getElementById('form-payment-edit');
+  formEdit.addEventListener('submit', function(e) {
+    e.preventDefault();
+    var id = document.getElementById('payment-edit-id').value;
+    var clientId = document.getElementById('payment-edit-client').value;
+    var amount = parseFloat(document.getElementById('payment-edit-amount').value) || 0;
+    var date = document.getElementById('payment-edit-date').value || todayISO();
+    var note = document.getElementById('payment-edit-note').value;
+    var jobId = document.getElementById('payment-edit-job').value || null;
+
+    if (!id || !clientId || amount <= 0) {
+      toast('Completá cliente e importe válido', 'error');
+      return;
+    }
+    if (formEdit.dataset.submitting === '1') return;
+    formEdit.dataset.submitting = '1';
+
+    try {
+      accountStore.updatePayment({ id: id, clientId: clientId, jobId: jobId, amount: amount, date: date, note: note });
+      toast('Pago actualizado correctamente', 'success');
+      closeModal('modal-payment');
+    } finally {
+      formEdit.dataset.submitting = '';
+    }
+  });
+
+  // Tabla de todas las cuentas: click en "Abrir" -> cambia de cliente
   document.getElementById('accounts-table-container').addEventListener('click', function(e) {
     var btn = e.target.closest('button[data-action="Abrir"]');
     if (!btn) return;
@@ -1065,6 +1299,11 @@ function onDataChanged(data) {
   var clients = data.clients || [];
   fillClientSelect(document.getElementById('account-client'), clients, true);
   fillClientSelect(document.getElementById('payment-client'), clients, true);
+  // Refrescar el link de trabajo según el cliente seleccionado en cada select
+  var pc = document.getElementById('payment-client');
+  fillJobSelect(document.getElementById('payment-job'), accountStore, pc ? pc.value : '');
+  var pe = document.getElementById('payment-edit-client');
+  fillJobSelect(document.getElementById('payment-edit-job'), accountStore, pe ? pe.value : '');
   if (selectedClientId) renderAccount(selectedClientId);
   renderAllAccountsTable();
 }
@@ -1075,6 +1314,34 @@ function fillClientSelect(sel, clients, keepPrev) {
   sel.innerHTML = '<option value="">Seleccionar cliente</option>' +
     clients.map(function(c) { return '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>'; }).join('');
   if (keepPrev && prev) sel.value = prev;
+}
+
+function fillJobSelect(sel, store, clientId) {
+  if (!sel) return;
+  var prev = sel.value;
+  var jobs = store ? store.getJobs().filter(function(j) { return !clientId || String(j.clientId) === String(clientId); }) : [];
+  sel.innerHTML = '<option value="">Sin vínculo a trabajo</option>' +
+    jobs.map(function(j) {
+      return '<option value="' + j.id + '">' + escapeHtml(formatDate(j.date)) + ' - ' + escapeHtml((j.description || '').slice(0, 60)) + ' (' + escapeHtml(formatCurrency(j.amount)) + ')</option>';
+    }).join('');
+  if (prev) sel.value = prev;
+}
+
+function openPaymentEditModal(store, paymentId) {
+  var p = store.getPayments().find(function(x) { return String(x.id) === String(paymentId); });
+  if (!p) return;
+  var clients = store.getClients();
+  fillClientSelect(document.getElementById('payment-edit-client'), clients, false);
+  fillJobSelect(document.getElementById('payment-edit-job'), store, p.clientId);
+  document.getElementById('payment-edit-id').value = p.id;
+  document.getElementById('payment-edit-client').value = p.clientId || '';
+  document.getElementById('payment-edit-amount').value = p.amount || 0;
+  document.getElementById('payment-edit-date').value = (p.date || '').slice(0, 10) || todayISO();
+  document.getElementById('payment-edit-note').value = p.note || '';
+  document.getElementById('payment-edit-job').value = p.jobId || '';
+  // Re-popular los jobs según el cliente actual por si cambió value tras fillJobSelect
+  document.getElementById('payment-edit-job').onchange = null;
+  openModal('modal-payment');
 }
 
 function renderAccount(clientId) {
@@ -1090,21 +1357,23 @@ function renderAccount(clientId) {
     { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
     { key: 'description', label: 'Descripción' },
     { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
-    { key: 'status', label: 'Estado', render: function(r) {
-        return '<span class="badge ' + (r.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente') + '">' +
-          (r.status === 'pagado' ? 'Pagado' : 'Pendiente') + '</span>';
-      } }
+    { key: 'status', label: 'Estado', render: function(r) { return jobStatusBadge(r.status); } }
   ];
   document.getElementById('account-jobs-table').innerHTML =
-    renderTable(acc.jobs, jobCols, [{ label: 'Ver detalle', icon: 'fa-eye', tone: '' }]);
+    renderTable(acc.jobs, jobCols, [{ label: 'Ver detalle', icon: 'fa-eye', tone: '' }, { label: 'Editar', icon: 'fa-pen', tone: '' }]);
 
   var payCols = [
     { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
     { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
-    { key: 'note', label: 'Nota' }
+    { key: 'note', label: 'Nota' },
+    { key: 'job', label: 'Trabajo', render: function(r) {
+        if (!r.jobId) return '—';
+        var job = accountStore.getJobs().find(function(j) { return String(j.id) === String(r.jobId); });
+        return job ? escapeHtml((job.description || '').slice(0, 48)) + ' (' + formatCurrency(job.amount) + ')' : '—';
+      } }
   ];
   document.getElementById('account-payments-table').innerHTML =
-    renderTable(acc.payments, payCols, [{ label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }]);
+    renderTable(acc.payments, payCols, [{ label: 'Editar', icon: 'fa-pen', tone: '' }, { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }]);
 }
 
 function renderAllAccountsTable() {
@@ -1129,6 +1398,93 @@ function setText(id, value) {
   if (el) el.textContent = value;
 }
 
+// js/views/kanban.js - Tablero Post-Trabajo (pipeline hacia cobro)
+// Tomado -> En Ejecución -> Completado -> Listo para Cobrar -> Cobrado
+
+var kanbanInitialized = false;
+var kanbanStore = null;
+
+function initKanbanView(store) {
+  if (kanbanInitialized) return;
+  kanbanInitialized = true;
+  kanbanStore = store;
+
+  document.getElementById('kanban-board').addEventListener('click', function(e) {
+    var btn = e.target.closest('button[data-kb-action]');
+    if (!btn) return;
+    var id = btn.dataset.id;
+    var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+    if (!job) return;
+
+    if (btn.dataset.kbAction === 'detail') {
+      openJobDetail(store, id);
+      return;
+    }
+    var idx = jobFlowIndex(job.status);
+    if (btn.dataset.kbAction === 'next' && idx < JOB_FLOW.length - 1) {
+      store.updateJob(Object.assign({}, job, { status: JOB_FLOW[idx + 1] }));
+      toast('Trabajo movido a: ' + jobStatusLabel(JOB_FLOW[idx + 1]), 'success');
+    } else if (btn.dataset.kbAction === 'prev' && idx > 0) {
+      store.updateJob(Object.assign({}, job, { status: JOB_FLOW[idx - 1] }));
+      toast('Trabajo devuelto a: ' + jobStatusLabel(JOB_FLOW[idx - 1]), 'info');
+    }
+  });
+
+  store.subscribe(renderKanban);
+}
+
+function renderKanban(data) {
+  var wrap = document.getElementById('kanban-board');
+  if (!wrap) return;
+  var clients = (data && data.clients) || [];
+  var jobs = (data && data.jobs) || [];
+
+  function clientOf(id) {
+    var c = clients.find(function(cl) { return String(cl.id) === String(id); });
+    return c ? c.name : 'Cliente eliminado';
+  }
+
+  wrap.innerHTML = JOB_FLOW.map(function(status) {
+    var colJobs = jobs.filter(function(j) { return j.status === status; })
+      .slice()
+      .sort(function(a, b) { return String(b.date || '').localeCompare(String(a.date || '')); });
+
+    var cards = colJobs.map(function(j) {
+      var idx = JOB_FLOW.indexOf(status);
+      var canPrev = idx > 0;
+      var canNext = idx < JOB_FLOW.length - 1;
+      var hasMissing = j.faltante && String(j.faltante).trim().length > 0;
+      var missingBadge = hasMissing
+        ? '<span class="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 rounded-full px-1.5 py-0.5"><i class="fa-solid fa-triangle-exclamation mr-0.5"></i>Faltó algo</span>'
+        : '';
+      var checkBadge = j.completado
+        ? '<span class="text-[10px] font-bold text-green-700 bg-green-50 border border-green-100 rounded-full px-1.5 py-0.5"><i class="fa-solid fa-check mr-0.5"></i>Hecho</span>'
+        : '';
+      return '' +
+        '<div class="kanban-card">' +
+          '<div class="kanban-card-title">' + escapeHtml(j.description || 'Sin descripción') + '</div>' +
+          '<div class="kanban-card-sub mt-1"><i class="fa-solid fa-user mr-1"></i>' + escapeHtml(clientOf(j.clientId)) + ' · <i class="fa-regular fa-calendar mr-1"></i>' + escapeHtml(formatDate(j.date)) + '</div>' +
+          '<div class="flex items-center justify-between gap-2 mt-1">' +
+            '<span class="kanban-card-amount">' + escapeHtml(formatCurrency(j.amount)) + '</span>' +
+            '<span class="flex gap-1 flex-wrap justify-end">' + checkBadge + missingBadge + '</span>' +
+          '</div>' +
+          '<div class="kanban-card-foot">' +
+            '<button type="button" class="kanban-move" data-kb-action="prev" data-id="' + escapeHtml(j.id) + '" ' + (canPrev ? '' : 'disabled') + ' title="Etapa anterior"><i class="fa-solid fa-chevron-left"></i></button>' +
+            '<button type="button" class="kanban-move" data-kb-action="detail" data-id="' + escapeHtml(j.id) + '" title="Ver detalle / editar"><i class="fa-solid fa-eye"></i></button>' +
+            '<button type="button" class="kanban-move" data-kb-action="next" data-id="' + escapeHtml(j.id) + '" ' + (canNext ? '' : 'disabled') + ' title="Siguiente etapa"><i class="fa-solid fa-chevron-right"></i></button>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+
+    var body = cards || '<div class="text-xs text-slate-400 text-center py-6"><i class="fa-solid fa-inbox block text-lg mb-1"></i>Sin trabajos</div>';
+    return '' +
+      '<div class="kanban-col">' +
+        '<div class="kanban-col-header kanban-head-' + status + '"><span>' + escapeHtml(jobStatusLabel(status)) + '</span><span class="count">' + colJobs.length + '</span></div>' +
+        '<div class="kanban-body">' + body + '</div>' +
+      '</div>';
+  }).join('');
+}
+
 // js/app.js - inicialización y navegación entre vistas
 // Listeners: se adjuntan una sola vez al DOMContentLoaded
 
@@ -1148,6 +1504,7 @@ function showView(viewName) {
   if (viewName === 'clients') initClientsView(store);
   else if (viewName === 'jobs') initJobsView(store);
   else if (viewName === 'account') initAccountView(store);
+  else if (viewName === 'kanban') initKanbanView(store);
   else renderDashboard();
 }
 
@@ -1158,11 +1515,15 @@ function renderDashboard() {
   var clients = data.clients || [];
   var totalDebito = sumJobs(jobs);
   var totalCredito = sumPayments(payments);
+  var jobsPagados = jobs.filter(function(j) { return j.status === 'pagado'; }).length;
+  var jobsPendientes = jobs.length - jobsPagados;
 
   setText('stat-clients', clients.length);
   setText('stat-jobs', jobs.length);
   setText('stat-billed', formatCurrency(totalDebito));
   setText('stat-saldo', formatCurrency(totalDebito - totalCredito));
+  setText('stat-pagados', jobsPagados);
+  setText('stat-pendientes', jobsPendientes);
 
   renderDashboardRecentJobs(jobs);
 }
@@ -1174,7 +1535,8 @@ function renderDashboardRecentJobs(jobs) {
   var columns = [
     { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
     { key: 'description', label: 'Descripción' },
-    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } }
+    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
+    { key: 'status', label: 'Estado', render: function(r) { return jobStatusBadge(r.status); } }
   ];
   var actions = [{ label: 'Ver', icon: 'fa-eye', tone: '' }];
   wrap.innerHTML = renderTable(sorted, columns, actions);
@@ -1204,20 +1566,31 @@ function openJobDetail(store, jobId) {
   setText('job-detail-location', job.location || '—');
 
   var statusEl = document.getElementById('job-detail-status');
-  statusEl.className = 'badge ' + (job.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente');
-  statusEl.textContent = job.status === 'pagado' ? 'Pagado' : 'Pendiente';
+  statusEl.className = 'badge ' + jobStatusBadgeClass(job.status);
+  statusEl.textContent = jobStatusLabel(job.status);
 
-  var linkForMap = job.mapLink || job.location || '';
+  var doneEl = document.getElementById('pt-completado');
+  var confEl = document.getElementById('pt-conforme');
+  var faltEl = document.getElementById('pt-faltante');
+  var obsEl = document.getElementById('pt-observaciones');
+  if (doneEl) doneEl.checked = !!job.completado;
+  if (confEl) confEl.checked = !!job.conforme;
+  if (faltEl) faltEl.value = job.faltante || '';
+  if (obsEl) obsEl.value = job.observaciones || '';
+
   renderJobDetailMap(job.mapLink, job.location);
 
   var markBtn = document.getElementById('job-detail-mark-paid');
-  markBtn.dataset.id = job.id;
-  markBtn.disabled = job.status === 'pagado';
-  if (job.status === 'pagado') {
-    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Ya Pagado';
-  } else {
-    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Marcar como Pagado';
+  var markText = document.getElementById('job-detail-mark-paid-text');
+  if (markBtn) {
+    markBtn.dataset.id = job.id;
+    markBtn.disabled = job.status === 'pagado';
+    if (markText) markText.textContent = job.status === 'pagado' ? 'Ya Cobrado' : 'Marcar como Cobrado';
   }
+
+  var editBtn = document.getElementById('job-detail-edit-btn');
+  if (editBtn) editBtn.dataset.id = job.id;
+
   openModal('modal-job');
 }
 
@@ -1273,11 +1646,11 @@ window.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('click', function() { closeModal(btn.dataset.closeModal); });
   });
 
-  // Adjuntar listeners una sola vez — initJobsView, initClientsView, initAccountView
-  // usan guard interno para no duplicar.
+  // Inicializar vistas (guard interno en cada init para no duplicar listeners)
   initClientsView(store);
   initJobsView(store);
   initAccountView(store);
+  initKanbanView(store);
 
   // Delegación para abrir detalle desde dashboard y tablas
   document.addEventListener('click', function(e) {
@@ -1288,6 +1661,35 @@ window.addEventListener('DOMContentLoaded', function() {
     openJobDetail(store, rowId);
   });
 
+  // Botón "Editar Trabajo" desde el modal de detalle -> carga el trabajo en el formulario
+  var editDetailBtn = document.getElementById('job-detail-edit-btn');
+  if (editDetailBtn) {
+    editDetailBtn.addEventListener('click', function() {
+      var id = this.dataset.id;
+      closeModal('modal-job');
+      startEditJob(store, id);
+    });
+  }
+
+  // Botón "Guardar Post-Trabajo": persiste checklist/faltante/observaciones del trabajo
+  var savePt = document.getElementById('job-detail-save-pt');
+  if (savePt) {
+    savePt.addEventListener('click', function() {
+      var id = document.getElementById('job-detail-id').textContent;
+      var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+      if (!job) return;
+      store.updateJob(Object.assign({}, job, {
+        completado: document.getElementById('pt-completado').checked,
+        conforme: document.getElementById('pt-conforme').checked,
+        faltante: document.getElementById('pt-faltante').value,
+        observaciones: document.getElementById('pt-observaciones').value
+      }));
+      toast('Post-trabajo guardado', 'success');
+      closeModal('modal-job');
+    });
+  }
+
+  // Marcar como cobrado desde el detalle
   const markPaid = document.getElementById('job-detail-mark-paid');
   if (markPaid) {
     markPaid.addEventListener('click', function() {
@@ -1295,7 +1697,7 @@ window.addEventListener('DOMContentLoaded', function() {
       var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
       if (!job) return;
       store.updateJob(Object.assign({}, job, { status: 'pagado' }));
-      toast('Trabajo marcado como pagado', 'success');
+      toast('Trabajo marcado como cobrado', 'success');
       closeModal('modal-job');
     });
   }

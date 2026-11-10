@@ -17,6 +17,7 @@ function showView(viewName) {
   if (viewName === 'clients') initClientsView(store);
   else if (viewName === 'jobs') initJobsView(store);
   else if (viewName === 'account') initAccountView(store);
+  else if (viewName === 'kanban') initKanbanView(store);
   else renderDashboard();
 }
 
@@ -27,11 +28,15 @@ function renderDashboard() {
   var clients = data.clients || [];
   var totalDebito = sumJobs(jobs);
   var totalCredito = sumPayments(payments);
+  var jobsPagados = jobs.filter(function(j) { return j.status === 'pagado'; }).length;
+  var jobsPendientes = jobs.length - jobsPagados;
 
   setText('stat-clients', clients.length);
   setText('stat-jobs', jobs.length);
   setText('stat-billed', formatCurrency(totalDebito));
   setText('stat-saldo', formatCurrency(totalDebito - totalCredito));
+  setText('stat-pagados', jobsPagados);
+  setText('stat-pendientes', jobsPendientes);
 
   renderDashboardRecentJobs(jobs);
 }
@@ -43,7 +48,8 @@ function renderDashboardRecentJobs(jobs) {
   var columns = [
     { key: 'date', label: 'Fecha', render: function(r) { return formatDate(r.date); } },
     { key: 'description', label: 'Descripción' },
-    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } }
+    { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
+    { key: 'status', label: 'Estado', render: function(r) { return jobStatusBadge(r.status); } }
   ];
   var actions = [{ label: 'Ver', icon: 'fa-eye', tone: '' }];
   wrap.innerHTML = renderTable(sorted, columns, actions);
@@ -73,20 +79,31 @@ function openJobDetail(store, jobId) {
   setText('job-detail-location', job.location || '—');
 
   var statusEl = document.getElementById('job-detail-status');
-  statusEl.className = 'badge ' + (job.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente');
-  statusEl.textContent = job.status === 'pagado' ? 'Pagado' : 'Pendiente';
+  statusEl.className = 'badge ' + jobStatusBadgeClass(job.status);
+  statusEl.textContent = jobStatusLabel(job.status);
 
-  var linkForMap = job.mapLink || job.location || '';
+  var doneEl = document.getElementById('pt-completado');
+  var confEl = document.getElementById('pt-conforme');
+  var faltEl = document.getElementById('pt-faltante');
+  var obsEl = document.getElementById('pt-observaciones');
+  if (doneEl) doneEl.checked = !!job.completado;
+  if (confEl) confEl.checked = !!job.conforme;
+  if (faltEl) faltEl.value = job.faltante || '';
+  if (obsEl) obsEl.value = job.observaciones || '';
+
   renderJobDetailMap(job.mapLink, job.location);
 
   var markBtn = document.getElementById('job-detail-mark-paid');
-  markBtn.dataset.id = job.id;
-  markBtn.disabled = job.status === 'pagado';
-  if (job.status === 'pagado') {
-    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Ya Pagado';
-  } else {
-    markBtn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Marcar como Pagado';
+  var markText = document.getElementById('job-detail-mark-paid-text');
+  if (markBtn) {
+    markBtn.dataset.id = job.id;
+    markBtn.disabled = job.status === 'pagado';
+    if (markText) markText.textContent = job.status === 'pagado' ? 'Ya Cobrado' : 'Marcar como Cobrado';
   }
+
+  var editBtn = document.getElementById('job-detail-edit-btn');
+  if (editBtn) editBtn.dataset.id = job.id;
+
   openModal('modal-job');
 }
 
@@ -142,11 +159,11 @@ window.addEventListener('DOMContentLoaded', function() {
     btn.addEventListener('click', function() { closeModal(btn.dataset.closeModal); });
   });
 
-  // Adjuntar listeners una sola vez — initJobsView, initClientsView, initAccountView
-  // usan guard interno para no duplicar.
+  // Inicializar vistas (guard interno en cada init para no duplicar listeners)
   initClientsView(store);
   initJobsView(store);
   initAccountView(store);
+  initKanbanView(store);
 
   // Delegación para abrir detalle desde dashboard y tablas
   document.addEventListener('click', function(e) {
@@ -157,6 +174,35 @@ window.addEventListener('DOMContentLoaded', function() {
     openJobDetail(store, rowId);
   });
 
+  // Botón "Editar Trabajo" desde el modal de detalle -> carga el trabajo en el formulario
+  var editDetailBtn = document.getElementById('job-detail-edit-btn');
+  if (editDetailBtn) {
+    editDetailBtn.addEventListener('click', function() {
+      var id = this.dataset.id;
+      closeModal('modal-job');
+      startEditJob(store, id);
+    });
+  }
+
+  // Botón "Guardar Post-Trabajo": persiste checklist/faltante/observaciones del trabajo
+  var savePt = document.getElementById('job-detail-save-pt');
+  if (savePt) {
+    savePt.addEventListener('click', function() {
+      var id = document.getElementById('job-detail-id').textContent;
+      var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+      if (!job) return;
+      store.updateJob(Object.assign({}, job, {
+        completado: document.getElementById('pt-completado').checked,
+        conforme: document.getElementById('pt-conforme').checked,
+        faltante: document.getElementById('pt-faltante').value,
+        observaciones: document.getElementById('pt-observaciones').value
+      }));
+      toast('Post-trabajo guardado', 'success');
+      closeModal('modal-job');
+    });
+  }
+
+  // Marcar como cobrado desde el detalle
   const markPaid = document.getElementById('job-detail-mark-paid');
   if (markPaid) {
     markPaid.addEventListener('click', function() {
@@ -164,7 +210,7 @@ window.addEventListener('DOMContentLoaded', function() {
       var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
       if (!job) return;
       store.updateJob(Object.assign({}, job, { status: 'pagado' }));
-      toast('Trabajo marcado como pagado', 'success');
+      toast('Trabajo marcado como cobrado', 'success');
       closeModal('modal-job');
     });
   }

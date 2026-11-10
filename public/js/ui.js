@@ -164,3 +164,31 @@ function buildEmbedUrl(input) {
   // Texto de zona / nombre -> buscar en Google Maps embebido
   return 'https://www.google.com/maps?q=' + encodeURIComponent(s) + '&output=embed';
 }
+
+// Etiquetas del flujo de trabajos
+var JOB_STATUS_LABELS = {
+  'pendiente': 'Tomado',
+  'en-curso': 'En Ejecución',
+  'completado': 'Completado',
+  'listo-cobro': 'Listo para Cobrar',
+  'pagado': 'Cobrado'
+};
+
+function jobStatusLabel(status) {
+  return JOB_STATUS_LABELS[status] || (status ? String(status) : 'Tomado');
+}
+
+function jobStatusBadgeClass(status) {
+  var map = {
+    'pendiente': 'badge-pendiente',
+    'en-curso': 'badge-encurso',
+    'completado': 'badge-completado',
+    'listo-cobro': 'badge-listo',
+    'pagado': 'badge-pagado'
+  };
+  return map[status] || 'badge-pendiente';
+}
+
+function jobStatusBadge(status) {
+  return '<span class="badge ' + jobStatusBadgeClass(status) + '">' + escapeHtml(jobStatusLabel(status)) + '</span>';
+}

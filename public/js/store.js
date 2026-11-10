@@ -1,3 +1,14 @@
+// Flujo de estados de los trabajos (pipeline hacia cobro):
+// pendiente -> en-curso -> completado -> listo-cobro -> pagado
+var JOB_FLOW = ['pendiente', 'en-curso', 'completado', 'listo-cobro', 'pagado'];
+
+function jobFlowIndex(status) {
+  for (var i = 0; i < JOB_FLOW.length; i++) {
+    if (JOB_FLOW[i] === status) return i;
+  }
+  return -1;
+}
+
 // js/store.js - persistencia local usando localStorage
 
 class Store {
@@ -11,6 +22,16 @@ class Store {
     this._data.clients = this._parse('clients');
     this._data.jobs = this._parse('jobs');
     this._data.payments = this._parse('payments');
+    // Migración suave: agregar campos nuevos sin romper datos existentes
+    this._data.jobs = this._data.jobs.map(function(j) {
+      return Object.assign({
+        status: 'pendiente',
+        completado: false,
+        conforme: false,
+        faltante: '',
+        observaciones: ''
+      }, j);
+    });
     // Sembrar datos de ejemplo si no hay nada cargado
     if (this._data.clients.length === 0) {
       this._data.clients = [
@@ -86,7 +107,10 @@ class Store {
   }
 
   addJob(job) {
-    const newJob = Object.assign({}, job, { id: Date.now().toString(), createdAt: new Date().toISOString(), status: 'pendiente' });
+    const newJob = Object.assign({
+      status: 'pendiente', completado: false, conforme: false,
+      faltante: '', observaciones: ''
+    }, job, { id: Date.now().toString(), createdAt: new Date().toISOString() });
     this._data.jobs.push(newJob);
     this._save();
     this._notify();
@@ -112,6 +136,12 @@ class Store {
     this._save();
     this._notify();
     return newPayment;
+  }
+
+  updatePayment(payment) {
+    this._data.payments = this._data.payments.map(function(p) { return p.id === payment.id ? Object.assign({}, p, payment) : p; });
+    this._save();
+    this._notify();
   }
 
   deletePayment(id) {

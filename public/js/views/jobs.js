@@ -1,26 +1,23 @@
-// js/views/jobs.js - vista de Carga de Trabajos
+// js/views/jobs.js - vista de Carga de Trabajos (alta y edición)
 
 var jobsInitialized = false;
+var jobsStoreRef = null;
 
 function initJobsView(store) {
   if (jobsInitialized) return;
   jobsInitialized = true;
+  jobsStoreRef = store;
 
   var selectClient = document.getElementById('job-client');
+  var form = document.getElementById('form-job');
 
-  document.getElementById('form-job').addEventListener('submit', function(e) {
+  form.addEventListener('submit', function(e) {
     e.preventDefault();
-    var form = e.target;
-    // Guard contra doble despacho (mensajes de confirmación/clics repetidos)
+    // Guard contra doble despacho
     if (form.dataset.submitting === '1') return;
-    var clientId = form.querySelector('[name="clientId"]').value;
-    var date = form.querySelector('[name="date"]').value;
-    var description = form.querySelector('[name="description"]').value;
-    var amount = form.querySelector('[name="amount"]').value;
-    var location = form.querySelector('[name="location"]').value;
-    var mapLink = (form.querySelector('[name="mapLink"]') || {}).value || '';
+    var data = collectJobForm(form);
 
-    if (!clientId || !date || !description) {
+    if (!data.clientId || !data.date || !data.description) {
       toast('Completá los campos obligatorios', 'error');
       return;
     }
@@ -28,18 +25,16 @@ function initJobsView(store) {
     form.dataset.submitting = '1';
     var submitBtn = form.querySelector('button[type="submit"]');
     if (submitBtn) submitBtn.disabled = true;
-
     try {
-      store.addJob({
-        clientId: clientId,
-        date: date,
-        description: description,
-        amount: parseFloat(amount) || 0,
-        location: location,
-        mapLink: mapLink
-      });
-      toast('Trabajo guardado correctamente', 'success');
-      clearForm(form);
+      var editingId = form.querySelector('#job-id').value;
+      if (editingId) {
+        store.updateJob(Object.assign({}, data, { id: editingId }));
+        toast('Trabajo actualizado correctamente', 'success');
+      } else {
+        store.addJob(data);
+        toast('Trabajo guardado correctamente', 'success');
+      }
+      exitJobEditMode();
       renderMapPreview();
     } finally {
       form.dataset.submitting = '';
@@ -47,14 +42,14 @@ function initJobsView(store) {
     }
   });
 
+  document.getElementById('btn-cancel-job-edit').addEventListener('click', function() {
+    exitJobEditMode();
+  });
+
   var mapLink = document.getElementById('job-map-link');
-  if (mapLink) {
-    mapLink.addEventListener('input', function() { renderMapPreview(); });
-  }
+  if (mapLink) mapLink.addEventListener('input', function() { renderMapPreview(); });
   var locationInput = document.getElementById('job-location');
-  if (locationInput) {
-    locationInput.addEventListener('input', function() { renderMapPreview(); });
-  }
+  if (locationInput) locationInput.addEventListener('input', function() { renderMapPreview(); });
 
   document.getElementById('jobs-table-container').addEventListener('click', function(e) {
     var btn = e.target.closest('button[data-action]');
@@ -64,6 +59,8 @@ function initJobsView(store) {
 
     if (action === 'Ver detalle') {
       openJobDetail(store, id);
+    } else if (action === 'Editar') {
+      startEditJob(store, id);
     } else if (action === 'Eliminar') {
       confirmAction('¿Eliminar este trabajo y sus pagos?', function() {
         store.deleteJob(id);
@@ -92,18 +89,60 @@ function initJobsView(store) {
       { key: 'description', label: 'Descripción' },
       { key: 'clientId', label: 'Cliente', render: function(r) { return escapeHtml(clientName(r.clientId)); } },
       { key: 'amount', label: 'Monto', render: function(r) { return formatCurrency(r.amount); } },
-      { key: 'status', label: 'Estado', render: function(r) {
-          return '<span class="badge ' + (r.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente') + '">' +
-            (r.status === 'pagado' ? 'Pagado' : 'Pendiente') + '</span>';
-        } }
+      { key: 'status', label: 'Estado', render: function(r) { return jobStatusBadge(r.status); } }
     ];
     var actions = [
       { label: 'Ver detalle', icon: 'fa-eye', tone: '' },
+      { label: 'Editar', icon: 'fa-pen', tone: '' },
       { label: 'Eliminar', icon: 'fa-trash', tone: 'danger' }
     ];
     document.getElementById('jobs-table-container').innerHTML = renderTable(jobs, columns, actions);
   });
 
+  renderMapPreview();
+}
+
+function collectJobForm(form) {
+  return {
+    clientId: (form.querySelector('[name="clientId"]') || {}).value || '',
+    date: (form.querySelector('[name="date"]') || {}).value || '',
+    amount: parseFloat((form.querySelector('[name="amount"]') || {}).value) || 0,
+    description: (form.querySelector('[name="description"]') || {}).value || '',
+    location: (form.querySelector('[name="location"]') || {}).value || '',
+    mapLink: (form.querySelector('[name="mapLink"]') || {}).value || '',
+    status: (form.querySelector('[name="status"]') || {}).value || 'pendiente'
+  };
+}
+
+function exitJobEditMode() {
+  var form = document.getElementById('form-job');
+  if (!form) return;
+  form.reset();
+  document.getElementById('job-id').value = '';
+  var title = document.getElementById('job-form-title');
+  if (title) title.textContent = 'Nuevo Trabajo';
+  var submitBtn = document.getElementById('btn-save-job');
+  if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> <span>Guardar Trabajo</span>';
+  var cancelBtn = document.getElementById('btn-cancel-job-edit');
+  if (cancelBtn) cancelBtn.classList.add('hidden');
+}
+
+// Carga el trabajo indicado en el formulario de Carga de Trabajos (modo edición).
+function startEditJob(store, id) {
+  if (!store) store = jobsStoreRef;
+  if (!store) return;
+  var job = store.getJobs().find(function(j) { return String(j.id) === String(id); });
+  if (!job) return;
+  window.location.hash = '#/jobs';
+  var form = document.getElementById('form-job');
+  populateForm(form, job);
+  document.getElementById('job-id').value = job.id;
+  var title = document.getElementById('job-form-title');
+  if (title) title.textContent = 'Editar Trabajo';
+  var submitBtn = document.getElementById('btn-save-job');
+  if (submitBtn) submitBtn.innerHTML = '<i class="fa-solid fa-pen"></i> <span>Actualizar Trabajo</span>';
+  var cancelBtn = document.getElementById('btn-cancel-job-edit');
+  if (cancelBtn) cancelBtn.classList.remove('hidden');
   renderMapPreview();
 }
 
