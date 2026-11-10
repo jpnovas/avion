@@ -568,6 +568,45 @@ function todayISO() {
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 }
 
+// Util: convertir cualquier enlace de Google Maps (My Maps, edit, coords) a URL embebible en iframe
+function buildEmbedUrl(input) {
+  const s = (input || '').trim();
+  if (!s) return null;
+
+  // My Maps: link de edición o viewer -> pasar a embed con el mid
+  const myMaps = s.match(/maps\/d\/u\/(\d+)\/(edit|viewer|preview)\?([^#]+)/i);
+  if (myMaps) {
+    const params = myMaps[3];
+    const midMatch = params.match(/([?&]|^)mid=([^&]+)/i);
+    if (midMatch && midMatch[2]) {
+      return 'https://www.google.com/maps/d/u/' + myMaps[1] + '/embed?mid=' + encodeURIComponent(midMatch[2]);
+    }
+    if (params.indexOf('mid=') !== -1) {
+      const cleaned = params.split('&').filter(function(p) { return p.indexOf('mid=') === 0; }).join('&');
+      return 'https://www.google.com/maps/d/u/' + myMaps[1] + '/embed?' + cleaned;
+    }
+  }
+  if (/maps\/d\/u\/\d+\/embed/i.test(s)) return s;
+
+  // Coordenadas "lat, lng" (validamos rango)
+  const coordMatch = s.match(/(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/);
+  if (coordMatch) {
+    const lat = parseFloat(coordMatch[1]);
+    const lng = parseFloat(coordMatch[2]);
+    if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      return 'https://www.google.com/maps?q=' + lat + ',' + lng + '&z=13&output=embed';
+    }
+  }
+
+  // Enlace ya válido de Google Maps -> intentar output=embed
+  if (/google[\.]\w+\/maps/i.test(s)) {
+    return s + (s.indexOf('?') !== -1 ? '&' : '?') + 'output=embed';
+  }
+
+  // Texto de zona / nombre -> buscar en Google Maps embebido
+  return 'https://www.google.com/maps?q=' + encodeURIComponent(s) + '&output=embed';
+}
+
 // js/store.js - persistencia local usando localStorage
 
 class Store {
@@ -618,11 +657,14 @@ class Store {
 
   subscribe(cb) {
     this._listeners.push(cb);
-    cb(this._data);
+    try { cb(this._data); } catch (e) { console.error('[store] subscriber init error', e); }
   }
 
   _notify() {
-    this._listeners.forEach(function(cb) { cb(this._data); });
+    const self = this;
+    this._listeners.slice().forEach(function(cb) {
+      try { cb(self._data); } catch (e) { console.error('[store] subscriber error', e); }
+    });
   }
 
   getData() { return this._data; }
@@ -729,14 +771,22 @@ function initClientsView(store) {
       toast('El nombre del cliente es obligatorio', 'error');
       return;
     }
-    if (id) {
-      store.updateClient(Object.assign({}, data, { id: id }));
-      toast('Cliente actualizado', 'success');
-    } else {
-      store.addClient(data);
-      toast('Cliente creado', 'success');
+    // Guard anti doble-envío
+    if (formClient.dataset.submitting === '1') return;
+    formClient.dataset.submitting = '1';
+
+    try {
+      if (id) {
+        store.updateClient(Object.assign({}, data, { id: id }));
+        toast('Cliente actualizado', 'success');
+      } else {
+        store.addClient(data);
+        toast('Cliente guardado correctamente', 'success');
+      }
+      closeModal('modal-client');
+    } finally {
+      formClient.dataset.submitting = '';
     }
-    closeModal('modal-client');
   });
 
   if (searchInput) {
@@ -814,6 +864,8 @@ function initJobsView(store) {
   document.getElementById('form-job').addEventListener('submit', function(e) {
     e.preventDefault();
     var form = e.target;
+    // Guard contra doble despacho (mensajes de confirmación/clics repetidos)
+    if (form.dataset.submitting === '1') return;
     var clientId = form.querySelector('[name="clientId"]').value;
     var date = form.querySelector('[name="date"]').value;
     var description = form.querySelector('[name="description"]').value;
@@ -826,22 +878,35 @@ function initJobsView(store) {
       return;
     }
 
-    store.addJob({
-      clientId: clientId,
-      date: date,
-      description: description,
-      amount: parseFloat(amount) || 0,
-      location: location,
-      mapLink: mapLink
-    });
-    toast('Trabajo guardado correctamente', 'success');
-    clearForm(form);
-    renderMapPreview();
+    form.dataset.submitting = '1';
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      store.addJob({
+        clientId: clientId,
+        date: date,
+        description: description,
+        amount: parseFloat(amount) || 0,
+        location: location,
+        mapLink: mapLink
+      });
+      toast('Trabajo guardado correctamente', 'success');
+      clearForm(form);
+      renderMapPreview();
+    } finally {
+      form.dataset.submitting = '';
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
 
   var mapLink = document.getElementById('job-map-link');
   if (mapLink) {
     mapLink.addEventListener('input', function() { renderMapPreview(); });
+  }
+  var locationInput = document.getElementById('job-location');
+  if (locationInput) {
+    locationInput.addEventListener('input', function() { renderMapPreview(); });
   }
 
   document.getElementById('jobs-table-container').addEventListener('click', function(e) {
@@ -899,9 +964,12 @@ function renderMapPreview() {
   var iframe = document.getElementById('job-map-preview');
   if (!iframe) return;
   var mapLink = document.getElementById('job-map-link');
-  var link = mapLink ? mapLink.value : '';
-  if (link) {
-    iframe.src = link.indexOf('google.com/maps/embed') !== -1 ? link : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(link);
+  var link = (mapLink && mapLink.value) ? mapLink.value.trim() : '';
+  var locationEl = document.getElementById('job-location');
+  var location = locationEl ? locationEl.value.trim() : '';
+  var src = buildEmbedUrl(link || location);
+  if (src) {
+    iframe.src = src;
     iframe.classList.remove('hidden');
   } else {
     iframe.src = '';
@@ -941,21 +1009,28 @@ function initAccountView(store) {
 
     var clientId = clientEl.value;
     var amount = parseFloat(amountEl.value) || 0;
+
+    if (formPayment.dataset.submitting === '1') return;
     if (!clientId || amount <= 0) {
       toast('Seleccioná un cliente e importe válido', 'error');
       return;
     }
-    store.addPayment({
-      clientId: clientId,
-      amount: amount,
-      date: dateEl.value || todayISO(),
-      note: document.getElementById('payment-note').value
-    });
-    toast('Pago registrado', 'success');
+    formPayment.dataset.submitting = '1';
 
-    clearForm(formPayment);
-    if (paymentDate) paymentDate.value = todayISO();
-    // El store notifica a los subscribers -> onDataChanged re-renderiza
+    try {
+      store.addPayment({
+        clientId: clientId,
+        amount: amount,
+        date: dateEl.value || todayISO(),
+        note: document.getElementById('payment-note').value
+      });
+      toast('Pago registrado correctamente', 'success');
+
+      clearForm(formPayment);
+      if (paymentDate) paymentDate.value = todayISO();
+    } finally {
+      formPayment.dataset.submitting = '';
+    }
   });
 
   // Delegación para clicks en las tablas de cuenta
@@ -1132,7 +1207,8 @@ function openJobDetail(store, jobId) {
   statusEl.className = 'badge ' + (job.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente');
   statusEl.textContent = job.status === 'pagado' ? 'Pagado' : 'Pendiente';
 
-  renderJobDetailMap(job.mapLink);
+  var linkForMap = job.mapLink || job.location || '';
+  renderJobDetailMap(job.mapLink, job.location);
 
   var markBtn = document.getElementById('job-detail-mark-paid');
   markBtn.dataset.id = job.id;
@@ -1145,19 +1221,26 @@ function openJobDetail(store, jobId) {
   openModal('modal-job');
 }
 
-function renderJobDetailMap(mapLink) {
+function renderJobDetailMap(mapLink, location) {
   var wrap = document.getElementById('job-detail-map-wrap');
   var iframe = document.getElementById('job-detail-map');
   var link = document.getElementById('job-detail-map-link');
-  if (mapLink) {
-    iframe.src = mapLink.indexOf('google.com/maps/embed') !== -1
-      ? mapLink
-      : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(mapLink);
-    link.href = mapLink;
-    link.classList.remove('hidden');
+  var src = buildEmbedUrl(mapLink || location);
+  if (src) {
+    iframe.src = src;
+    iframe.classList.remove('hidden');
+    if (mapLink) {
+      link.href = mapLink;
+      link.classList.remove('hidden');
+    } else {
+      link.removeAttribute('href');
+      link.classList.add('hidden');
+    }
     wrap.classList.remove('hidden');
   } else {
     iframe.src = '';
+    iframe.classList.add('hidden');
+    link.removeAttribute('href');
     link.classList.add('hidden');
     wrap.classList.add('hidden');
   }

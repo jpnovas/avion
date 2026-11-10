@@ -29,14 +29,22 @@ function initClientsView(store) {
       toast('El nombre del cliente es obligatorio', 'error');
       return;
     }
-    if (id) {
-      store.updateClient(Object.assign({}, data, { id: id }));
-      toast('Cliente actualizado', 'success');
-    } else {
-      store.addClient(data);
-      toast('Cliente creado', 'success');
+    // Guard anti doble-envío
+    if (formClient.dataset.submitting === '1') return;
+    formClient.dataset.submitting = '1';
+
+    try {
+      if (id) {
+        store.updateClient(Object.assign({}, data, { id: id }));
+        toast('Cliente actualizado', 'success');
+      } else {
+        store.addClient(data);
+        toast('Cliente guardado correctamente', 'success');
+      }
+      closeModal('modal-client');
+    } finally {
+      formClient.dataset.submitting = '';
     }
-    closeModal('modal-client');
   });
 
   if (searchInput) {

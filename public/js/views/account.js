@@ -30,21 +30,28 @@ function initAccountView(store) {
 
     var clientId = clientEl.value;
     var amount = parseFloat(amountEl.value) || 0;
+
+    if (formPayment.dataset.submitting === '1') return;
     if (!clientId || amount <= 0) {
       toast('Seleccioná un cliente e importe válido', 'error');
       return;
     }
-    store.addPayment({
-      clientId: clientId,
-      amount: amount,
-      date: dateEl.value || todayISO(),
-      note: document.getElementById('payment-note').value
-    });
-    toast('Pago registrado', 'success');
+    formPayment.dataset.submitting = '1';
 
-    clearForm(formPayment);
-    if (paymentDate) paymentDate.value = todayISO();
-    // El store notifica a los subscribers -> onDataChanged re-renderiza
+    try {
+      store.addPayment({
+        clientId: clientId,
+        amount: amount,
+        date: dateEl.value || todayISO(),
+        note: document.getElementById('payment-note').value
+      });
+      toast('Pago registrado correctamente', 'success');
+
+      clearForm(formPayment);
+      if (paymentDate) paymentDate.value = todayISO();
+    } finally {
+      formPayment.dataset.submitting = '';
+    }
   });
 
   // Delegación para clicks en las tablas de cuenta

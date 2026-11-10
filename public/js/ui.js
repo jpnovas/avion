@@ -125,3 +125,42 @@ function todayISO() {
   const off = d.getTimezoneOffset();
   return new Date(d.getTime() - off * 60000).toISOString().slice(0, 10);
 }
+
+// Util: convertir cualquier enlace de Google Maps (My Maps, edit, coords) a URL embebible en iframe
+function buildEmbedUrl(input) {
+  const s = (input || '').trim();
+  if (!s) return null;
+
+  // My Maps: link de edición o viewer -> pasar a embed con el mid
+  const myMaps = s.match(/maps\/d\/u\/(\d+)\/(edit|viewer|preview)\?([^#]+)/i);
+  if (myMaps) {
+    const params = myMaps[3];
+    const midMatch = params.match(/([?&]|^)mid=([^&]+)/i);
+    if (midMatch && midMatch[2]) {
+      return 'https://www.google.com/maps/d/u/' + myMaps[1] + '/embed?mid=' + encodeURIComponent(midMatch[2]);
+    }
+    if (params.indexOf('mid=') !== -1) {
+      const cleaned = params.split('&').filter(function(p) { return p.indexOf('mid=') === 0; }).join('&');
+      return 'https://www.google.com/maps/d/u/' + myMaps[1] + '/embed?' + cleaned;
+    }
+  }
+  if (/maps\/d\/u\/\d+\/embed/i.test(s)) return s;
+
+  // Coordenadas "lat, lng" (validamos rango)
+  const coordMatch = s.match(/(-?\d{1,2}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/);
+  if (coordMatch) {
+    const lat = parseFloat(coordMatch[1]);
+    const lng = parseFloat(coordMatch[2]);
+    if (Math.abs(lat) <= 90 && Math.abs(lng) <= 180) {
+      return 'https://www.google.com/maps?q=' + lat + ',' + lng + '&z=13&output=embed';
+    }
+  }
+
+  // Enlace ya válido de Google Maps -> intentar output=embed
+  if (/google[\.]\w+\/maps/i.test(s)) {
+    return s + (s.indexOf('?') !== -1 ? '&' : '?') + 'output=embed';
+  }
+
+  // Texto de zona / nombre -> buscar en Google Maps embebido
+  return 'https://www.google.com/maps?q=' + encodeURIComponent(s) + '&output=embed';
+}

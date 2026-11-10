@@ -11,6 +11,8 @@ function initJobsView(store) {
   document.getElementById('form-job').addEventListener('submit', function(e) {
     e.preventDefault();
     var form = e.target;
+    // Guard contra doble despacho (mensajes de confirmación/clics repetidos)
+    if (form.dataset.submitting === '1') return;
     var clientId = form.querySelector('[name="clientId"]').value;
     var date = form.querySelector('[name="date"]').value;
     var description = form.querySelector('[name="description"]').value;
@@ -23,22 +25,35 @@ function initJobsView(store) {
       return;
     }
 
-    store.addJob({
-      clientId: clientId,
-      date: date,
-      description: description,
-      amount: parseFloat(amount) || 0,
-      location: location,
-      mapLink: mapLink
-    });
-    toast('Trabajo guardado correctamente', 'success');
-    clearForm(form);
-    renderMapPreview();
+    form.dataset.submitting = '1';
+    var submitBtn = form.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      store.addJob({
+        clientId: clientId,
+        date: date,
+        description: description,
+        amount: parseFloat(amount) || 0,
+        location: location,
+        mapLink: mapLink
+      });
+      toast('Trabajo guardado correctamente', 'success');
+      clearForm(form);
+      renderMapPreview();
+    } finally {
+      form.dataset.submitting = '';
+      if (submitBtn) submitBtn.disabled = false;
+    }
   });
 
   var mapLink = document.getElementById('job-map-link');
   if (mapLink) {
     mapLink.addEventListener('input', function() { renderMapPreview(); });
+  }
+  var locationInput = document.getElementById('job-location');
+  if (locationInput) {
+    locationInput.addEventListener('input', function() { renderMapPreview(); });
   }
 
   document.getElementById('jobs-table-container').addEventListener('click', function(e) {
@@ -96,9 +111,12 @@ function renderMapPreview() {
   var iframe = document.getElementById('job-map-preview');
   if (!iframe) return;
   var mapLink = document.getElementById('job-map-link');
-  var link = mapLink ? mapLink.value : '';
-  if (link) {
-    iframe.src = link.indexOf('google.com/maps/embed') !== -1 ? link : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(link);
+  var link = (mapLink && mapLink.value) ? mapLink.value.trim() : '';
+  var locationEl = document.getElementById('job-location');
+  var location = locationEl ? locationEl.value.trim() : '';
+  var src = buildEmbedUrl(link || location);
+  if (src) {
+    iframe.src = src;
     iframe.classList.remove('hidden');
   } else {
     iframe.src = '';

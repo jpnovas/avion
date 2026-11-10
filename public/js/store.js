@@ -48,11 +48,14 @@ class Store {
 
   subscribe(cb) {
     this._listeners.push(cb);
-    cb(this._data);
+    try { cb(this._data); } catch (e) { console.error('[store] subscriber init error', e); }
   }
 
   _notify() {
-    this._listeners.forEach(function(cb) { cb(this._data); });
+    const self = this;
+    this._listeners.slice().forEach(function(cb) {
+      try { cb(self._data); } catch (e) { console.error('[store] subscriber error', e); }
+    });
   }
 
   getData() { return this._data; }

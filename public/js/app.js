@@ -76,7 +76,8 @@ function openJobDetail(store, jobId) {
   statusEl.className = 'badge ' + (job.status === 'pagado' ? 'badge-pagado' : 'badge-pendiente');
   statusEl.textContent = job.status === 'pagado' ? 'Pagado' : 'Pendiente';
 
-  renderJobDetailMap(job.mapLink);
+  var linkForMap = job.mapLink || job.location || '';
+  renderJobDetailMap(job.mapLink, job.location);
 
   var markBtn = document.getElementById('job-detail-mark-paid');
   markBtn.dataset.id = job.id;
@@ -89,19 +90,26 @@ function openJobDetail(store, jobId) {
   openModal('modal-job');
 }
 
-function renderJobDetailMap(mapLink) {
+function renderJobDetailMap(mapLink, location) {
   var wrap = document.getElementById('job-detail-map-wrap');
   var iframe = document.getElementById('job-detail-map');
   var link = document.getElementById('job-detail-map-link');
-  if (mapLink) {
-    iframe.src = mapLink.indexOf('google.com/maps/embed') !== -1
-      ? mapLink
-      : 'https://www.google.com/maps/embed?q=' + encodeURIComponent(mapLink);
-    link.href = mapLink;
-    link.classList.remove('hidden');
+  var src = buildEmbedUrl(mapLink || location);
+  if (src) {
+    iframe.src = src;
+    iframe.classList.remove('hidden');
+    if (mapLink) {
+      link.href = mapLink;
+      link.classList.remove('hidden');
+    } else {
+      link.removeAttribute('href');
+      link.classList.add('hidden');
+    }
     wrap.classList.remove('hidden');
   } else {
     iframe.src = '';
+    iframe.classList.add('hidden');
+    link.removeAttribute('href');
     link.classList.add('hidden');
     wrap.classList.add('hidden');
   }
