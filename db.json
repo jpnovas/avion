@@ -1,0 +1,66 @@
+{
+  "clients": [
+    {
+      "id": "1",
+      "name": "Agropecuaria El Porvenir S.A.",
+      "cuit": "20-12345678-9",
+      "phone": "351-1234567",
+      "city": "Córdoba",
+      "contact": "Juan Pérez",
+      "createdAt": "2026-01-10T08:00:00Z"
+    },
+    {
+      "id": "2",
+      "name": "Campos del Sur",
+      "cuit": "20-98765432-1",
+      "phone": "354-9876543",
+      "city": "Villa María",
+      "contact": "María Gómez",
+      "createdAt": "2026-02-05T09:30:00Z"
+    },
+    {
+      "id": "3",
+      "name": "Establecimiento La Fortuna",
+      "cuit": "20-45678901-2",
+      "phone": "3472-555000",
+      "city": "Río Cuarto",
+      "contact": "Carlos Ruiz",
+      "createdAt": "2026-02-20T10:15:00Z"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "101",
+      "clientId": "1",
+      "date": "2026-03-10",
+      "description": "Aeroaplicación de herbicida - Lote Norte",
+      "location": "https://www.google.com/maps/@-31.4,-64.2,15z",
+      "mapEmbed": "https://www.google.com/maps/embed?pb=...",
+      "amount": 45000,
+      "status": "pendiente",
+      "createdAt": "2026-03-10T08:00:00Z"
+    },
+    {
+      "id": "102",
+      "clientId": "2",
+      "date": "2026-03-15",
+      "description": "Fertilización foliar - Lote Centro",
+      "location": "https://www.google.com/maps/@-32.4,-63.2,15z",
+      "mapEmbed": "https://www.google.com/maps/embed?pb=...",
+      "amount": 38000,
+      "status": "pagado",
+      "createdAt": "2026-03-15T09:00:00Z"
+    }
+  ],
+  "payments": [
+    {
+      "id": "201",
+      "clientId": "2",
+      "jobId": "102",
+      "amount": 38000,
+      "date": "2026-03-20",
+      "note": "Pago total trabajo 102",
+      "createdAt": "2026-03-20T14:00:00Z"
+    }
+  ]
+}

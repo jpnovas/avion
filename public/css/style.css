@@ -1,0 +1,50 @@
+/* Custom styles for the Avion Aeroaplicaciones system */
+
+/* Primary colors - professional blue palette */
+:root {
+  --primary: 215 100% 20;       /* Navy principal */
+  --primary-foreground: 0 0% 100%; /* Blanco */
+  --secondary: 220 15% 95;      /* Gris muy claro de fondo */
+  --accent: 220 95% 55;         /* Naranja sutil para botones/alertas */
+  --muted: 220 15% 45;          /* Texto secundario */
+  --success: 142 75% 45;        /* Verde éxito */
+  --danger: 0 80% 55;           /* Rojo peligro */
+}
+
+/* Tailwind base overrides */
+body { background: hsl(var(--secondary)); color: hsl(var(--muted)); font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, 'Noto Sans', sans-serif; }
+
+/* Navbar */
+.navbar { background: hsl(var(--primary)); backdrop-filter: blur(8px); }
+.navbar a { color: hsl(var(--primary-foreground)) !important; transition: color 0.2s; }
+.navbar a:hover { color: rgba(255,255,255,0.8) !important; }
+
+/* Cards & Panels */
+.card { background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+.table th, .table td { vertical-align: middle; font-size: 0.875rem; }
+
+/* Form inputs */
+input, select, textarea { border: 1px solid #d1d5db; border-radius: 4px; padding: 6px 8px; width: 100%; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px rgba(219,219,219,0.3); }
+
+/* Buttons */
+.btn-primary { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); padding: 8px 16px; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; transition: opacity 0.2s; }
+.btn-primary:hover { opacity: 0.9; }
+.btn-secondary { background: transparent; color: hsl(var(--primary)); padding: 8px 16px; border-radius: 6px; border: 1px solid hsl(var(--primary)); font-weight: 500; cursor: pointer; transition: all 0.2s; }
+.btn-secondary:hover { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+
+/* Modals */
+.modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+.modal-content { border-radius: 8px; }
+
+/* Tables */
+.table-striped tbody tr:nth-child(odd) { background: #f9fafb; }
+
+/* Status badges */
+.badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-paid { background: #d1e7dd; color: #0f5132; }
+.badge-pending-job { background: #fee2e2; color: #991b1b; }
+
+/* Reducirpadding en formularios */
+.form-input { padding: 8px 12px; font-size: 0.95rem; }

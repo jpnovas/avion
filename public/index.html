@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avion - Gestión de Aeroaplicaciones</title>
+  <!-- Tailwind CSS por CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome por CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="antialiased min-h-screen bg-gray-50 text-gray-800">
+
+  <!-- Toast container -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Navbar -->
+  <nav class="navbar w-full z-40 shadow-sm sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-sm">A</div>
+          <span class="font-bold text-lg tracking-tight text-blue-900 sm:text-xl">AVION</span>
+        </div>
+        <div class="hidden md:flex space-x-6">
+          <a href="#/dashboard" class="nav-link text-blue-900 hover:text-blue-700 font-medium px-3 py-2 rounded-md transition" data-view="dashboard"><i class="fa-solid fa-house mr-2"></i>Dashboard</a>
+          <a href="#/jobs" class="nav-link text-blue-900 hover:text-blue-700 font-medium px-3 py-2 rounded-md transition" data-view="jobs"><i class="fa-solid fa-plane mr-2"></i>Carga de Trabajos</a>
+          <a href="#/clients" class="nav-link text-blue-900 hover:text-blue-700 font-medium px-3 py-2 rounded-md transition" data-view="clients"><i class="fa-solid fa-users mr-2"></i>Gestión de Clientes</a>
+          <a href="#/account" class="nav-link text-blue-900 hover:text-blue-700 font-medium px-3 py-2 rounded-md transition" data-view="account"><i class="fa-solid fa-wallet mr-2"></i>Cuenta Corriente</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Contenido principal -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- VISTA: Dashboard -->
+    <section id="view-dashboard" class="view-section hidden mb-8">
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">Bienvenido al Sistema de Gestión</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-blue-50 p-4 rounded-lg border border-blue-100">
+            <p class="text-blue-600 text-sm font-medium">Trabajos</p>
+            <p class="text-3xl font-bold text-blue-900 mt-1" id="stat-jobs">-</p>
+          </div>
+          <div class="bg-green-50 p-4 rounded-lg border border-green-100">
+            <p class="text-green-600 text-sm font-medium">Clientes</p>
+            <p class="text-3xl font-bold text-green-900 mt-1" id="stat-clients">-</p>
+          </div>
+          <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
+            <p class="text-orange-600 text-sm font-medium">Saldo Total</p>
+            <p class="text-3xl font-bold text-orange-900 mt-1" id="stat-saldo">-</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA: Carga de Trabajos -->
+    <section id="view-jobs" class="view-section hidden">
+      <div class="flex justify-between items-end mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Carga de Trabajos</h2>
+          <p class="text-gray-500 text-sm">Registro de aeroaplicaciones y trabajos por cliente</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario -->
+        <div class="lg:col-span-1 space-y-4">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold mb-4">Nuevo Trabajo</h3>
+            <form id="form-job" class="space-y-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Cliente</label>
+                <select id="job-client" name="clientId" required class="form-input block w-full"></select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Fecha</label>
+                <input type="date" id="job-date" name="date" required class="form-input block w-full">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Descripción / Observaciones</label>
+                <textarea id="job-description" name="description" rows="3" required class="form-input block w-full" placeholder="Ej: Aeroaplicación de herbicida"></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Monto ($)</label>
+                <input type="number" id="job-amount" name="amount" required min="0" step="0.01" class="form-input block w-full">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Zona / Enlace de Ubicación (Google Maps / My Maps)</label>
+                <input type="url" id="job-map-link" name="location" class="form-input block w-full" placeholder="https://www.google.com/maps/@...">
+              </div>
+              <button type="submit" class="btn-primary w-full py-2">Guardar Trabajo</button>
+            </form>
+            <div class="mt-4 p-3 bg-blue-50 rounded border border-blue-100 text-xs text-blue-700">
+              <i class="fa-solid fa-info-circle mr-1"></i>El enlace de ubicación se muestra en la sección Mapa a continuación.
+            </div>
+          </div>
+
+          <!-- Vista previa del mapa -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 h-full">
+            <h3 class="text-lg font-semibold mb-4">Vista Previa del Mapa</h3>
+            <div class="aspect-square border rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center text-gray-400 text-sm italic">
+              Sin mapa cargado
+            </div>
+            <iframe id="job-map-preview" class="w-full h-64 hidden rounded-lg border" title="Mapa de ubicación" allowfullscreen loading="lazy"></iframe>
+          </div>
+        </div>
+
+        <!-- Tabla de trabajos -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold mb-4">Trabajos Registrados</h3>
+            <div id="jobs-table-container" class="overflow-x-auto"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VISTA: Gestión de Clientes (CRUD) -->
+    <section id="view-clients" class="view-section hidden">
+      <div class="flex justify-between items-end mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Gestión de Clientes</h2>
+          <p class="text-gray-500 text-sm">Alta, Baja, Modificación y Consulta de clientes</p>
+        </div>
+        <button id="btn-new-client" class="btn-primary px-4 py-2"><i class="fa-solid fa-plus mr-2"></i>Nuevo Cliente</button>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div id="clients-table-container"></div>
+      </div>
+    </section>
+
+    <!-- VISTA: Cuenta Corriente -->
+    <section id="view-account" class="view-section hidden">
+      <div class="flex justify-between items-end mb-6">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Cuenta Corriente</h2>
+          <p class="text-gray-500 text-sm">Consulta de estado financiero de cada cliente</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+      <h3 class="text-lg font-semibold mb-4">Resumen de Todas las Cuentas</h3>
+      <div id="accounts-table-container" class="overflow-x-auto"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Formulario de selección -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold mb-4">Seleccionar Cliente</h3>
+            <form id="form-account">
+              <div>
+                <label class="block text-xs font-medium text-gray-700 mb-1">Cliente</label>
+                <select id="account-client" name="clientId" required class="form-input block w-full"></select>
+              </div>
+              <button type="submit" class="btn-primary w-full py-2">Consultar Cuenta</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Detalle de cuenta -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-semibold mb-4">Resumen de Cuenta</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <p class="text-xs text-gray-500 uppercase">Total Debito</p>
+                <p class="text-lg font-bold text-gray-900" id="account-debito">-</p>
+              </div>
+              <div class="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <p class="text-xs text-gray-500 uppercase">Total Crédito</p>
+                <p class="text-lg font-bold text-gray-900" id="account-credito">-</p>
+              </div>
+              <div class="p-4 rounded-lg border border-gray-200 bg-gray-50">
+                <p class="text-xs text-gray-500 uppercase">Saldo Pendiente</p>
+                <p class="text-lg font-bold text-red-600" id="account-saldo">-</p>
+              </div>
+            </div>
+            <h4 class="font-semibold mb-3">Trabajos</h4>
+            <div id="account-jobs-table" class="overflow-x-auto mb-6"></div>
+            <h4 class="font-semibold mb-3">Pagos</h4>
+            <div id="account-payments-table" class="overflow-x-auto"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal: Nuevo / Editar Cliente -->
+  <div id="modal-client" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 modal-content">
+      <h3 id="modal-client-title" class="text-xl font-bold mb-4">Nuevo Cliente</h3>
+      <form id="form-client">
+        <input type="hidden" id="client-id" name="id">
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Razón Social / Nombre</label>
+          <input type="text" id="client-name" name="name" required class="form-input block w-full">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">CUIT / Teléfono</label>
+          <input type="text" id="client-cuit" name="cuit" required class="form-input block w-full">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Localidad</label>
+          <input type="text" id="client-city" name="city" class="form-input block w-full">
+        </div>
+        <div>
+          <label class="block text-xs font-medium text-gray-700 mb-1">Contacto</label>
+          <input type="text" id="client-contact" name="contact" class="form-input block w-full">
+        </div>
+        <button type="button" data-close-modal="modal-client" class="btn-secondary w-32 py-2 ml-2">Cancelar</button>
+        <button type="submit" class="btn-primary w-32 py-2">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Nueva / Editar Cuenta -->
+  <div id="modal-account" class="modal-overlay fixed inset-0 z-50 hidden flex items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 modal-content">
+      <h3 id="modal-account-title" class="text-xl font-bold mb-4">Nueva Cuenta</h3>
+      <form id="form-account-modal">
+        <select id="account-modal-client" name="clientId" class="form-input block w-full mb-4"></select>
+        <button type="button" data-close-modal="modal-account" class="btn-secondary w-32 py-2 ml-2">Cancelar</button>
+        <button type="submit" class="btn-primary w-32 py-2">Guardar</button>
+      </form>
+    </div>
+  </div>
+
+  <footer class="border-t border-gray-200 bg-white py-6 mt-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-sm text-gray-500">
+      <p>Sistema de Gestión de Aeroaplicaciones - Avion</p>
+      <p>Desarrollado para despliegue gratuito en Vercel / Netlify / GitHub Pages</p>
+    </div>
+  </footer>
+
+  <!-- JS modules -->
+  <script src="js/ui.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/views/clients.js"></script>
+  <script src="js/views/jobs.js"></script>
+  <script src="js/views/account.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
